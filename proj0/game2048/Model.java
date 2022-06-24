@@ -120,20 +120,26 @@ public class Model extends Observable {
                 }
                 if (lastTile == null) {
                     _board.move(col, lastRow, tile);
-                    changed = true;
+                    if (row != lastRow) {
+                        changed = true;
+                    }
                     lastTile = tile;
                 }
                 else if (lastTile.value() != tile.value()) {
                     _board.move(col, lastRow - 1, tile);
-                    lastRow -= lastRow;
                     changed = true;
+                    if (lastRow != 0) {
+                        lastRow -= 1;
+                    }
                     lastTile = tile;
                 }
                 else if (lastTile.value() == tile.value()) {
                     _board.move(col, lastRow, tile);
                     _score += _board.tile(col, lastRow).value();
                     changed = true;
-                    lastRow -= 1;
+                    if (lastRow != 0) {
+                        lastRow -= 1;
+                    }
                     lastTile = _board.tile(col, lastRow);
                 }
             }
