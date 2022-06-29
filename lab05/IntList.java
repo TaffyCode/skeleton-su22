@@ -49,7 +49,19 @@ public class IntList {
      * @return The element at [position]
      */
     public int get(int position) {
-        //TODO: YOUR CODE HERE
+        IntList current = this;
+        if (position < 0) {
+            throw new IllegalArgumentException("no lol pt. 2");
+        }
+        for (int x = 0; x <= position; x++) {
+            if (current == null) {
+                throw new IllegalArgumentException("no lol");
+            } else if (x != position) {
+                current = current.next;
+            } else {
+                return current.item;
+            }
+        }
         return -1;
     }
 
@@ -60,8 +72,17 @@ public class IntList {
      * @return The String representation of the list.
      */
     public String toString() {
-        //TODO: YOUR CODE HERE
-        return null;
+        IntList current = this;
+        StringBuilder builder = new StringBuilder();
+        while (current != null) {
+            if (current.next == null) {
+                builder.append(current.item);
+            } else {
+                builder.append(current.item).append(" ");
+            }
+            current = current.next;
+        }
+        return builder.toString();
     }
 
     /**
@@ -82,10 +103,20 @@ public class IntList {
             return false;
         }
         IntList otherLst = (IntList) obj;
-
-        //TODO: YOUR CODE HERE
-
-        return false;
+        IntList current = this;
+        while (current.next != null || otherLst.next != null) {
+            if ((current.next == null && otherLst.next != null) || (current.next != null && otherLst.next == null)) {
+                return false;
+            } else {
+                if (current.item == otherLst.item) {
+                    current = current.next;
+                    otherLst = otherLst.next;
+                } else {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     /**
@@ -94,7 +125,11 @@ public class IntList {
      * @param value, the int to be added.
      */
     public void add(int value) {
-        //TODO: YOUR CODE HERE
+        IntList current = this;
+        while (current.next != null) {
+            current = current.next;
+        }
+        current.next = new IntList(value);
     }
 
     /**
@@ -103,8 +138,18 @@ public class IntList {
      * @return smallest element in the list
      */
     public int smallest() {
-        //TODO: YOUR CODE HERE
-        return -1;
+        IntList current = this;
+        int x = -1;
+        while (current != null) {
+            if (x == -1) {
+                x = current.item;
+            }
+            else if (current.item < x) {
+                x = current.item;
+            }
+            current = current.next;
+        }
+        return x;
     }
 
     /**
@@ -113,8 +158,13 @@ public class IntList {
      * @return The sum of squares of all elements.
      */
     public int squaredSum() {
-        //TODO: YOUR CODE HERE
-        return -1;
+        int x = 0;
+        IntList current = this;
+        while (current != null) {
+            x += (current.item * current.item);
+            current = current.next;
+        }
+        return x;
     }
 
     /**
@@ -171,8 +221,11 @@ public class IntList {
      * @return new list with A followed by B.
      */
     public static IntList dcatenate(IntList A, IntList B) {
-        //TODO: YOUR CODE HERE
-        return null;
+        while (B != null) {
+            A.add(B.item);
+            B = B.next;
+        }
+        return A;
     }
 
     /**
@@ -184,7 +237,17 @@ public class IntList {
      * @return new list with A followed by B.
      */
      public static IntList catenate(IntList A, IntList B) {
-        //TODO: YOUR CODE HERE
-        return null;
+        IntList newLst = new IntList(A.item);
+        IntList AMimic = A.next;
+        IntList BMimic = B;
+        while (AMimic != null) {
+            newLst.add(AMimic.item);
+            AMimic = AMimic.next;
+        }
+        while (BMimic != null) {
+            newLst.add(BMimic.item);
+            BMimic = BMimic.next;
+        }
+        return newLst;
      }
 }
