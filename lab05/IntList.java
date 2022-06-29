@@ -221,6 +221,9 @@ public class IntList {
      * @return new list with A followed by B.
      */
     public static IntList dcatenate(IntList A, IntList B) {
+        if (A == null || B == null) {
+            return A;
+        }
         while (B != null) {
             A.add(B.item);
             B = B.next;
@@ -237,6 +240,15 @@ public class IntList {
      * @return new list with A followed by B.
      */
      public static IntList catenate(IntList A, IntList B) {
+        if (A == null) {
+            IntList newLst = new IntList(B.item);
+            IntList BMimic = B.next;
+            while (BMimic != null) {
+                newLst.add(BMimic.item);
+                BMimic = BMimic.next;
+            }
+            return newLst;
+        }
         IntList newLst = new IntList(A.item);
         IntList AMimic = A.next;
         IntList BMimic = B;
