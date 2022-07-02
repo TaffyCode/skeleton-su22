@@ -17,14 +17,18 @@ public class BooleanSet implements SimpleSet {
 
     /** Adds k to the set. */
     public void add(int k) {
-        contains[k] = true;
-        size += 1;
+        if (!contains[k]){
+            contains[k] = true;
+            size += 1;
+        }
     }
 
     /** Removes k from the set. */
     public void remove(int k) {
-        contains[k] = false;
-        size -=1;
+        if (contains[k]) {
+            contains[k] = false;
+            size -=1;
+        }
     }
 
     /** Return true if k is in this set, false otherwise. */
