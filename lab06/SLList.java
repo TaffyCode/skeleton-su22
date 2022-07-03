@@ -126,12 +126,12 @@ public class SLList {
             p = p.next;
             index -= 1;
         }
-        p.next = p;
-        p.item = x;
+        p.next = new IntListNode(x, p.next.next);
+        size += 1;
     }
 
     /** Destructively reverses this list. */
     public void reverse() {
-        // TODO
+        
     }
 }
