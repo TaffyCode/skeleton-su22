@@ -1,9 +1,6 @@
 package gh2;
-
-// TODO: uncomment the following import once you're ready to start this portion
-// import deque.Deque;
-// TODO: maybe more imports
-
+import deque.Deque;
+import deque.ArrayDeque;
 //Note: This file will not compile until you complete the Deque implementations
 public class GuitarString {
     /** Constants. Do not change. In case you're curious, the keyword final
@@ -12,16 +9,12 @@ public class GuitarString {
     private static final int SR = 44100;      // Sampling Rate
     private static final double DECAY = .996; // energy decay factor
 
-    /* Buffer for storing sound data. */
-    // TODO: uncomment the following line once you're ready to start this portion
-    // private Deque<Double> buffer;
+    private Deque<Double> buffer;
 
     /* Create a guitar string of the given frequency.  */
     public GuitarString(double frequency) {
-        // TODO: Create a buffer with capacity = SR / frequency. You'll need to
-        //       cast the result of this division operation into an int. For
-        //       better accuracy, use the Math.round() function before casting.
-        //       Your should initially fill your buffer array with zeros.
+        int round = (int) Math.round(SR / frequency);
+        buffer = new ArrayDeque(round);
     }
 
 
