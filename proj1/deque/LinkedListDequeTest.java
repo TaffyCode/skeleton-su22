@@ -62,7 +62,4 @@ public class LinkedListDequeTest {
     public void emptyNullReturn() {
         assertEquals(null, lld.removeFirst());
     }
-    /** TODO: Write tests to ensure that your implementation works for really large
-     * numbers of elements, and test any other methods you haven't yet tested!
-     */
 }

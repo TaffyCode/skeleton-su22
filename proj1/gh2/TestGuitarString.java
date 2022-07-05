@@ -74,7 +74,6 @@ public class TestGuitarString  {
 
         double s5 = s.sample();
         double expected = 0.996 * 0.5 * (s1 + s2);
-
         // Check that new sample is correct, using tolerance of 0.001.
         // See JUnit documentation for a description of how tolerances work
         // for assertEquals(double, double)
