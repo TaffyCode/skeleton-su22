@@ -7,13 +7,31 @@ import static org.junit.Assert.*;
 /* Performs some basic array deque tests. */
 public class ArrayDequeTest {
 
-    /** You MUST use the variable below for all of your tests. If you test
-     * using a local variable, and not this static variable below, the
-     * autograder will not grade that test. If you would like to test
-     * ArrayDeques with types other than Integer (and you should),
-     * you can define a new local variable. However, the autograder will
-     * not grade that test. */
-
-    //public static Deque<Integer> ad = new ArrayDeque<Integer>();
-
+    public static Deque<Integer> ad = new ArrayDeque<Integer>();
+    @Test
+    public void testAddLast() {
+        for (int count = 0; count <= 100; count++) {
+            ad.addLast(count);
+        }
+        for (int count = 0; count <= 95; count++) {
+            ad.removeFirst();
+        }
+    }
+    @Test
+    public void testAddFirstAndStuff() {
+        ad.addFirst(2);
+        ad.addFirst(3);
+        assertEquals(3, (int) ad.get(0));
+        assertEquals(2, (int) ad.get(1));
+        ad.removeFirst();
+        assertEquals(2, (int) ad.get(0));
+        ad.addLast(4);
+        assertEquals(4, (int) ad.get(1));
+        assertEquals(2, (int) ad.get(0));
+        ad.addFirst(3);
+        ad.addLast(18);
+        assertEquals(18, (int) ad.get(3));
+        ad.removeLast();
+        assertEquals(2, (int) ad.get(1));
+    }
 }

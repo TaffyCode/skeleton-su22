@@ -62,4 +62,16 @@ public class LinkedListDequeTest {
     public void emptyNullReturn() {
         assertEquals(null, lld.removeFirst());
     }
+
+    @Test
+    public void multipleThings() {
+        lld.addFirst(1);
+        lld.removeFirst();
+        assertTrue("lld1 should be empty after adding then removing an item", lld.isEmpty());
+        lld.addLast(2);
+        lld.addLast(2);
+        lld.addLast(2);
+        lld.addLast(4);
+        assertEquals(4, (int) lld.get(3));
+    }
 }

@@ -102,6 +102,28 @@ public class LinkedListDeque<T> implements Deque<T> {
         return current.item;
     }
 
+    public T getRecursive(int index) {
+        Node current = sentinel.next;
+        return helper(current, index);
+
+    }
+    private T helper(Node current2, int index2) {
+        if (current2 == null || index2 < 0 || index2 > size) {
+            return null;
+        } else if (index2 == 0) {
+            return current2.item;
+        }
+        return helper(current2.next, index2 - 1);
+    }
     @Override
-    public boolean equals(Object o) { return false; }
+    public boolean equals(Object o) {
+        for (int x = 0; x < this.size(); x++) {
+            if (o.equals(get(x))) {
+                continue;
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
 }

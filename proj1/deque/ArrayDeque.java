@@ -23,7 +23,7 @@ public class ArrayDeque<T> implements Deque<T> {
             array[0] = item;
             size = 0;
         } else {
-            first = upMove(first);
+            first = downMove(first);
             array[first] = item;
         }
         size += 1;
@@ -38,7 +38,7 @@ public class ArrayDeque<T> implements Deque<T> {
             array[0] = item;
             size = 0;
         } else {
-            last = downMove(last);
+            last = upMove(last);
             array[last] = item;
         }
         size += 1;
@@ -97,12 +97,21 @@ public class ArrayDeque<T> implements Deque<T> {
     }
 
     @Override
-    public boolean equals(Object o) { return false; }
+    public boolean equals(Object o) {
+        for (int x = 0; x < this.size(); x++) {
+            if (o.equals(get(x))) {
+                continue;
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
 
     //helper methods
 
     private void sizeChange() {
-        if ((this.size != 0) && (size < (array.length/ 4))) {
+        if (size < (array.length/ 4)) {
             int current = first;
             int number = 0;
             T[] change = (T[]) new Object[array.length / 2];
@@ -122,7 +131,7 @@ public class ArrayDeque<T> implements Deque<T> {
             while (current != last) {
                 number += 1;
                 change[number] = array[number];
-                current = upMove(number);
+                current = upMove(current);
             }
             change[number] = array[number];
             first = 0;
@@ -131,16 +140,16 @@ public class ArrayDeque<T> implements Deque<T> {
         }
     }
     private int upMove(int change) {
-        change -= 1;
+        change += 1;
         change %= array.length;
-        if (change < 0) {
-            change += array.length;
-        }
         return change;
     }
     private int downMove(int change) {
         change -= 1;
         change %= array.length;
+        if (change < 0) {
+            change += array.length;
+        }
         return change;
     }
 }
