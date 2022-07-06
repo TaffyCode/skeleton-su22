@@ -44,9 +44,6 @@ public class LinkedListDeque<T> implements Deque<T> {
     }
 
     @Override
-    public boolean isEmpty() { return size == 0; }
-
-    @Override
     public int size() {
         return size;
     }
@@ -117,6 +114,9 @@ public class LinkedListDeque<T> implements Deque<T> {
     }
     @Override
     public boolean equals(Object o) {
+        if (o.getClass() != this.getClass()) {
+            return false;
+        }
         for (int x = 0; x < this.size(); x++) {
             if (o.equals(get(x))) {
                 continue;

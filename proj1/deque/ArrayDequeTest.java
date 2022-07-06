@@ -8,6 +8,7 @@ import static org.junit.Assert.*;
 public class ArrayDequeTest {
 
     public static Deque<Integer> ad = new ArrayDeque<Integer>();
+
     @Test
     public void testAddLast() {
         for (int count = 0; count <= 100; count++) {
@@ -17,6 +18,7 @@ public class ArrayDequeTest {
             ad.removeFirst();
         }
     }
+
     @Test
     public void testAddFirstAndStuff() {
         ad.addFirst(2);
@@ -33,5 +35,23 @@ public class ArrayDequeTest {
         assertEquals(18, (int) ad.get(3));
         ad.removeLast();
         assertEquals(2, (int) ad.get(1));
+    }
+
+    @Test
+    public void testAddFirstAndLast() {
+        for (int count = 0; count <= 100; count++) {
+            ad.addLast(count);
+        }
+        ad.addFirst(101);
+        assertEquals(101, (int) ad.get(0));
+    }
+
+    @Test
+    public void testLastMore() {
+        for (int count = 0; count <= 100; count++) {
+            ad.addLast(count);
+        }
+        ad.addLast(101);
+        assertEquals(101, (int) ad.get(101));
     }
 }
