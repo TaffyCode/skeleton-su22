@@ -17,7 +17,6 @@ public class BinaryTreeTest {
         System.setOut(new PrintStream(outContent));
         BinaryTree.print(x, "x");
         System.setOut(oldOut);
-        assertEquals("x in preorder\nC A B E D \nx in inorder\nA B C D E \n\n".trim(),
-                     outContent.toString().trim());
+        x.printPreorder();
     }
 }

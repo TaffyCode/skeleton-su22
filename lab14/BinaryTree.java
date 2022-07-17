@@ -24,7 +24,29 @@ public class BinaryTree<T> {
 
     /* Print the values in the tree in inorder. */
     public void printInorder() {
-        // TODO: YOUR CODE HERE
+        if (root == null) {
+            System.out.println("none");
+        }
+        printInOrderHelper(root);
+    }
+
+    private void printInOrderHelper(TreeNode root) {
+        if(root.right==null&&root.left==null){
+            System.out.println(" "+root.item.toString()+" ");
+        }
+        else if(root.right == null){
+            printInOrderHelper(root.left);
+            System.out.println(" " + root.item.toString()+" ");
+        }
+        else if(root.left == null){
+            printInOrderHelper(root.right);
+            System.out.println(" " + root.item.toString()+" ");
+        }
+        else{
+            printInOrderHelper(root.left);
+            System.out.println(" " + root.item.toString()+" ");
+            printInOrderHelper(root.right);
+        }
     }
 
     /* Prints the BinaryTree in preorder or in inorder. Used for your testing. */
@@ -65,8 +87,30 @@ public class BinaryTree<T> {
         }
 
         /* Prints the nodes of the BinaryTree in inorder. Used for your testing. */
-        private void printInorder() {
-            // TODO: YOUR CODE HERE
+        public void printInorder() {
+            if (root == null) {
+                System.out.println("none");
+            }
+            printInOrderHelper(root);
+        }
+
+        private void printInOrderHelper(TreeNode root) {
+            if(root.right==null&&root.left==null){
+                System.out.print(" "+root.item.toString()+" ");
+            }
+            else if(root.right == null){
+                printInOrderHelper(root.left);
+                System.out.print(" " + root.item.toString()+" ");
+            }
+            else if(root.left == null){
+                printInOrderHelper(root.right);
+                System.out.print(" " + root.item.toString()+" ");
+            }
+            else{
+                printInOrderHelper(root.left);
+                System.out.print(" " + root.item.toString()+" ");
+                printInOrderHelper(root.right);
+            }
         }
     }
 }
