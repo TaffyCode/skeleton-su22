@@ -40,7 +40,7 @@ public class Repository {
     public static final File GITLET_DIR = join(CWD, ".gitlet");
     public static final File COMMITS_DIR = join(GITLET_DIR, "commits");
     public static final File BRANCHES_DIR = join(GITLET_DIR, "branches");
-    public static final File CURRENT_BRANCH = join(GITLET_DIR, "ACTIVE_BRANCH.txt");
+    public static final File CURRENT_BRANCH = join(GITLET_DIR, "CURRENT_BRANCH.txt");
     public static final File STAGING_AREA = join(GITLET_DIR, "staging-area");
     public static final File OBJECTS_DIR = join(GITLET_DIR, "objects");
     public static final File HEAD = join(GITLET_DIR, "HEAD.txt");
@@ -74,6 +74,8 @@ public class Repository {
         Commit initialCommit = new Commit(new HashMap<>(), "initial commit", new ArrayList<String>(), new HashMap<String, String>());
         Utils.writeObject(initialCommit.file(), initialCommit);
 
+        Branch.initHelper(HEAD, initialCommit.ID());
+
         Branch initial = new Branch(initialCommit);
         File branchFile = Utils.join(Repository.BRANCHES_DIR, initial.branch);
         Utils.writeObject(branchFile, initial);
@@ -95,26 +97,25 @@ public class Repository {
         if (stagingArea.isEmpty()) {
             System.out.println("No changes added to the commit.");
             return;
-        } else if (Objects.equals(commitMessage, " ")) {
-            System.out.println("Please enter a commit message.");
-            return;
         }
-        HashMap<String, String> addedMap = stagingArea.getAdded();
-        Utils.writeObject(Repository.STAGING_AREA, stagingArea);
+        HashMap<String, String> newTrackedMap = Helper.commitStagingArea(stagingArea);
+
+        Utils.writeObject(STAGING_AREA, stagingArea);
+
         ArrayList<String> parents = new ArrayList<>();
+        Commit HEADCommit = Helper.commitFromFile(Utils.readContentsAsString(HEAD));
 
+        parents.add(HEADCommit.ID());
 
-        String HEADCommitID = Utils.readContentsAsString(HEAD);
-        File commitFile = Utils.join(Repository.COMMITS_DIR, HEADCommitID);
+        Commit commit = new Commit(newTrackedMap, commitMessage, parents, newTrackedMap);
+        Utils.writeObject(Utils.join(COMMITS_DIR, commit.ID()), commit);
 
-        parents.add(HEADCommitID);
-        Commit commit = new Commit(addedMap, commitMessage, parents, stagingArea.prepForCommit());
-        Utils.writeObject(commit.file(), commit);
         Utils.writeContents(HEAD, commit.ID());
+
         Branch currentBranch = new Branch(commit, Utils.readContentsAsString(CURRENT_BRANCH));
-        File file = Utils.join(Repository.BRANCHES_DIR, currentBranch.branch);
+        File file = Utils.join(BRANCHES_DIR, currentBranch.branch());
         Utils.writeObject(file, currentBranch);
-        Utils.writeContents(Repository.CURRENT_BRANCH, currentBranch.branch);
+        Utils.writeContents(CURRENT_BRANCH, currentBranch.branch);
     }
 
     public void rm() {
@@ -154,25 +155,18 @@ public class Repository {
     }
 
     public void checkout(String[] file) {
-        if (file [2] == null) {
-            String path = Helper.getFileCWD(file[1]).getPath();
-            File commitNewFileOne = Utils.join(Repository.COMMITS_DIR, Utils.readContentsAsString(HEAD));
-            String temp = Utils.readObject(commitNewFileOne, Commit.class).added().get(path);
-            Utils.readObject(Utils.join(Repository.OBJECTS_DIR, temp.substring(0, 2), temp.substring(2)), BlobFile.class).write();
-        }
+        if (file[2] == null) {
+            String filePath = Helper.getFileCWD(file[1]).getPath();
+            if (!Helper.getHEADCommit(this).restoreTrackedFile(filePath)) {
+                System.out.println("File does not exist in that commit.");
+            }
         else if (Objects.equals(file[1], "--")) {
-            String tempID = "";
-            for (String commitId : Objects.requireNonNull(plainFilenamesIn(COMMITS_DIR))) {
-                if (commitId.contains(file[2])) {
-                    tempID = commitId;
+            String filePathTwo = Helper.getFileCWD(file[2]).getPath();
+            if (!Helper.getHEADCommit(this).restoreTrackedFile(filePathTwo)) {
+                System.out.println("File does not exist in that commit.");
                 }
             }
-            String path = Helper.getFileCWD(file[2]).getPath();
-            File commitNewFileTwo = Utils.join(Repository.COMMITS_DIR, tempID);
-            String temp = Utils.readObject(commitNewFileTwo, Commit.class).added().get(path);
-            Utils.readObject(Utils.join(Repository.OBJECTS_DIR, temp.substring(0, 2), temp.substring(2)), BlobFile.class).write();
         }
-
     }
 
     public void branch(String branchName) {
@@ -189,5 +183,9 @@ public class Repository {
 
     public void merge(String branchName) {
 
+    }
+
+    public File getHEAD() {
+        return HEAD;
     }
 }

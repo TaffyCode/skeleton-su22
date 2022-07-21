@@ -43,6 +43,17 @@ public class Commit implements Serializable {
         return Utils.readObject(file, Commit.class);
     }
 
+    public boolean restoreTrackedFile(String filePath) {
+        String blobID = added.get(filePath);
+
+        if (blobID == null) {
+            return false;
+        }
+
+        Helper.blobFromFile(blobID).write();
+        return true;
+    }
+
     public HashMap<String, String> blobs() { return blobs; }
     public String commitMessage() { return commitMessage; }
     public Date date() { return date; }

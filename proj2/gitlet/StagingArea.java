@@ -20,6 +20,10 @@ public class StagingArea implements Serializable {
 
     public HashMap<String, String> added() { return added; }
 
+    public HashMap<String, String> changes() { return changes; }
+
+    public ArrayList<String> removed() { return removed; }
+
     public boolean add(File file) {
         BlobFile blob = new BlobFile(file);
         String filePath = file.getPath();
@@ -44,5 +48,10 @@ public class StagingArea implements Serializable {
     public void clearStage() { added = new HashMap<>(); }
 
     public boolean isEmpty() { return added.size() == 0; }
+
+    public void wipe() {
+        added.clear();
+        removed.clear();
+    }
 
 }
