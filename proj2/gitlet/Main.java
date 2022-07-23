@@ -1,12 +1,15 @@
 package gitlet;
 
-/** Driver class for Gitlet, a subset of the Git version-control system.
- *  @author Raphael Pelayo
+/**
+ * Driver class for Gitlet, a subset of the Git version-control system.
+ *
+ * @author Raphael Pelayo
  */
 public class Main {
 
-    /** Usage: java gitlet.Main ARGS, where ARGS contains
-     *  <COMMAND> <OPERAND1> <OPERAND2> ... 
+    /**
+     * Usage: java gitlet.Main ARGS, where ARGS contains
+     * <COMMAND> <OPERAND1> <OPERAND2> ...
      */
     public static void main(String[] args) {
 
@@ -20,7 +23,7 @@ public class Main {
 
         String firstArg = args[0];
 
-        switch(firstArg) {
+        switch (firstArg) {
             case "init":
                 done = true;
                 if (lengthTest(args, 1)) {
@@ -43,15 +46,13 @@ public class Main {
                 done = true;
                 if (args.length == 2) {
                     repository.checkoutForBranches(args[1]);
-                }
-                else if (args.length == 3) {
+                } else if (args.length == 3) {
                     if (args[1].equals("--")) {
                         repository.checkout(args[2]);
                     } else {
                         System.out.println("Incorrect operands.");
                     }
-                }
-                else if (args.length == 4) {
+                } else if (args.length == 4) {
                     if (args[2].equals("--")) {
                         repository.checkout(args[1], args[3]);
                     } else {
@@ -121,8 +122,7 @@ public class Main {
     private static boolean lengthTest(String[] args, int expected) {
         if (args.length == expected) {
             return true;
-        }
-        else {
+        } else {
             System.out.println("Incorrect operands");
             return false;
         }

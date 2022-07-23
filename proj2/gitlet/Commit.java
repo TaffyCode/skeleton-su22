@@ -9,11 +9,12 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-/** Represents a gitlet commit object.
+/**
+ * Represents a gitlet commit object.
  *  TODO: It's a good idea to give a description here of what else this Class
  *  does at a high level.
  *
- *  @author TODO
+ * @author TODO
  */
 public class Commit implements Serializable {
 
@@ -34,29 +35,49 @@ public class Commit implements Serializable {
         this.commitMessage = commitMessage;
         this.parent = parent;
         if (parent == null) {
-            this.date = new SimpleDateFormat("E MMM dd HH:mm:ss yyyy").format( new Date(70, Calendar.JANUARY, 1, 0, 0, 0)) + " +0630";
+            this.date = new SimpleDateFormat("E MMM dd HH:mm:ss yyyy").format(new Date(70, Calendar.JANUARY, 1, 0, 0, 0)) + " +0630";
         } else {
             this.date = new SimpleDateFormat("E MMM dd HH:mm:ss yyyy").format(new Date()) + " +0630";
         }
     }
 
-    public void updateSHA1(String newSHA1) { this.SHA1 = newSHA1;}
+    public void updateSHA1(String newSHA1) {
+        this.SHA1 = newSHA1;
+    }
 
-    public void updateHashMap(HashMap<String, String> newHashMap) { this.hashMap = newHashMap; }
+    public void updateHashMap(HashMap<String, String> newHashMap) {
+        this.hashMap = newHashMap;
+    }
 
-    public String SHA1() { return SHA1; }
+    public String SHA1() {
+        return SHA1;
+    }
 
-    public HashMap<String, String> hashMap() { return this.hashMap; }
+    public HashMap<String, String> hashMap() {
+        return this.hashMap;
+    }
 
-    public String parent() { return parent; }
+    public String parent() {
+        return parent;
+    }
 
-    public String grandParent() { return grandParent; }
+    public String grandParent() {
+        return grandParent;
+    }
 
-    public String date() { return date; }
+    public String date() {
+        return date;
+    }
 
-    public String commitMessage() { return commitMessage; }
+    public String commitMessage() {
+        return commitMessage;
+    }
 
-    public void checkChange(boolean check) { this.check = check; }
+    public void checkChange(boolean check) {
+        this.check = check;
+    }
 
-    public HashSet<String> checkName() { return this.checkName; }
+    public HashSet<String> checkName() {
+        return this.checkName;
+    }
 }

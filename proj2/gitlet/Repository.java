@@ -10,10 +10,11 @@ import static gitlet.Utils.*;
 import edu.princeton.cs.algs4.ST;
 import org.junit.Test;
 
-/** Represents a gitlet repository.
- *  does at a high level.
+/**
+ * Represents a gitlet repository.
+ * does at a high level.
  *
- *  @author Raphael Pelayo
+ * @author Raphael Pelayo
  */
 public class Repository {
     /**
@@ -25,9 +26,13 @@ public class Repository {
      */
 
 
-    /** The current working directory. */
+    /**
+     * The current working directory.
+     */
     public static final File CWD = new File(System.getProperty("user.dir"));
-    /** The .gitlet directory. */
+    /**
+     * The .gitlet directory.
+     */
     public static final File GITLET_DIR = join(CWD, ".gitlet");
     public static final File COMMITS_DIR = join(GITLET_DIR, "commits");
     public static final File BLOBS_DIR = join(GITLET_DIR, "blobs");
@@ -39,7 +44,7 @@ public class Repository {
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public void init() {
-        if(GITLET_DIR.exists()){
+        if (GITLET_DIR.exists()) {
             System.out.println("A Gitlet version-control system already exists in the current directory.");
         }
         try {
@@ -166,7 +171,7 @@ public class Repository {
             File blob = join(BLOBS_DIR, previousCommit.hashMap().get(file));
             BlobFile blobFile = readObject(blob, BlobFile.class);
             // overwrite or create new file with contents in retrieved blob
-            File newVersion = join(CWD,file);
+            File newVersion = join(CWD, file);
             try {
                 newVersion.createNewFile();
             } catch (IOException exception) {
@@ -215,7 +220,7 @@ public class Repository {
                 }
             }
         }
-        if (!previousCommit.SHA1().equals(previousCommitTwo.SHA1())){
+        if (!previousCommit.SHA1().equals(previousCommitTwo.SHA1())) {
             for (String string : previousCommitTwo.hashMap().keySet()) {
                 String blob = previousCommitTwo.hashMap().get(string);
                 Helper.create(blob, string, this);
@@ -240,7 +245,7 @@ public class Repository {
     }
 
     public void status() {
-        if(!GITLET_DIR.exists()){
+        if (!GITLET_DIR.exists()) {
             System.out.println("Not in an initialized Gitlet directory.");
             return;
         }
@@ -258,7 +263,7 @@ public class Repository {
         System.out.println();
 
         System.out.println("=== Staged Files ===");
-        StagingArea stagingArea = readObject(STAGING_FILE,StagingArea.class);
+        StagingArea stagingArea = readObject(STAGING_FILE, StagingArea.class);
         HashMap<Integer, String> placeHolder = new HashMap<>();
         int count = 0;
         int remember = 0;
@@ -282,12 +287,12 @@ public class Repository {
         Commit previousCommit = Helper.currentCommit(this);
         System.out.println("=== Modifications Not Staged For Commit ===");
         List<String> workingDirectory = plainFilenamesIn(CWD);
-        HashMap<String,String> hashMap = previousCommit.hashMap();
+        HashMap<String, String> hashMap = previousCommit.hashMap();
         HashMap<String, String> added = stagingArea.added();
         List<String> removed = stagingArea.removed();
 
         assert workingDirectory != null;
-        for (String string: workingDirectory) {
+        for (String string : workingDirectory) {
             File file = join(CWD, string);
             BlobFile blobFile = new BlobFile(Utils.readContents(file));
             if (hashMap.containsKey(string)) {
@@ -378,13 +383,13 @@ public class Repository {
             }
         }
         try {
-            if (!previousCommit.SHA1().equals(checkCommit.SHA1())){
+            if (!previousCommit.SHA1().equals(checkCommit.SHA1())) {
                 for (String string : checkCommit.hashMap().keySet()) {
                     String blob = checkCommit.hashMap().get(string);
                     Helper.create(blob, string, this);
                 }
                 for (String string : previousCommit.hashMap().keySet()) {
-                    if (!checkCommit.hashMap().containsKey(string)){
+                    if (!checkCommit.hashMap().containsKey(string)) {
                         File remove = join(CWD, string);
                         Utils.restrictedDelete(remove);
                     }
@@ -400,12 +405,35 @@ public class Repository {
 
     }
 
-    public File getCWD() { return CWD; }
-    public File getGitletDir() { return GITLET_DIR; }
-    public File getCommitsDir() { return COMMITS_DIR; }
-    public File getHeadFile() { return HEAD_FILE; }
-    public File getStagingFile() { return STAGING_FILE; }
-    public File getBlobsDir() { return BLOBS_DIR; }
-    public File getRefsDir() { return REFS_DIR; }
-    public File getRemotesDir() { return REMOTES_DIR; }
+    public File getCWD() {
+        return CWD;
+    }
+
+    public File getGitletDir() {
+        return GITLET_DIR;
+    }
+
+    public File getCommitsDir() {
+        return COMMITS_DIR;
+    }
+
+    public File getHeadFile() {
+        return HEAD_FILE;
+    }
+
+    public File getStagingFile() {
+        return STAGING_FILE;
+    }
+
+    public File getBlobsDir() {
+        return BLOBS_DIR;
+    }
+
+    public File getRefsDir() {
+        return REFS_DIR;
+    }
+
+    public File getRemotesDir() {
+        return REMOTES_DIR;
+    }
 }

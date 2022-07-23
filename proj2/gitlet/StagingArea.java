@@ -13,13 +13,21 @@ public class StagingArea implements Serializable {
     private HashMap<String, String> added = new HashMap<>();
     private List<String> removed = new ArrayList<>();
 
-    public void add(String file, String blobFiles) { added.put(file, blobFiles); }
+    public void add(String file, String blobFiles) {
+        added.put(file, blobFiles);
+    }
 
-    public void remove(String file) { removed.add(file); }
+    public void remove(String file) {
+        removed.add(file);
+    }
 
-    public HashMap<String, String> added() { return added; }
+    public HashMap<String, String> added() {
+        return added;
+    }
 
-    public List<String> removed() { return removed; }
+    public List<String> removed() {
+        return removed;
+    }
 
     public void empty() {
         added.clear();

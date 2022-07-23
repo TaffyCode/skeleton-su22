@@ -38,11 +38,11 @@ public class Helper {
 
     public static void logHelper(Commit currentCommit) {
         System.out.println("===");
-        System.out.println("commit "+ currentCommit.SHA1());
-        if (currentCommit.grandParent() != null){
-            System.out.println("Merge: "+currentCommit.parent().substring(0,7)+" "+currentCommit.grandParent().substring(0,7));
+        System.out.println("commit " + currentCommit.SHA1());
+        if (currentCommit.grandParent() != null) {
+            System.out.println("Merge: " + currentCommit.parent().substring(0, 7) + " " + currentCommit.grandParent().substring(0, 7));
         }
-        System.out.println("Date: "+ currentCommit.date());
+        System.out.println("Date: " + currentCommit.date());
         System.out.println(currentCommit.commitMessage());
         System.out.println();
     }

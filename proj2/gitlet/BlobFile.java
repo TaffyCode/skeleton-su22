@@ -8,13 +8,17 @@ public class BlobFile implements Serializable {
     private byte[] blobContent;
     private String SHA1;
 
-    public BlobFile (byte[] bytes) {
+    public BlobFile(byte[] bytes) {
         this.blobContent = bytes;
         this.SHA1 = Utils.sha1((Object) Utils.serialize((Serializable) this));
     }
 
-    public String SHA1() { return SHA1; }
+    public String SHA1() {
+        return SHA1;
+    }
 
-    public byte[] blobContent() { return blobContent; }
+    public byte[] blobContent() {
+        return blobContent;
+    }
 
 }
