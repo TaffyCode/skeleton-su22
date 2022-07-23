@@ -7,10 +7,7 @@ import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date; // TODO: You'll likely use this in this class
-import java.util.HashMap;
-import java.util.Locale;
+import java.util.*;
 
 /** Represents a gitlet commit object.
  *  TODO: It's a good idea to give a description here of what else this Class
@@ -19,50 +16,47 @@ import java.util.Locale;
  *  @author TODO
  */
 public class Commit implements Serializable {
-    private HashMap<String, String> blobs;
-    private ArrayList parent;
-    private HashMap<String, String> added;
+
     private String commitMessage;
-    private Date date;
-    private String hash;
-    private String ID;
-    private File file;
-    public Commit(HashMap<String, String> blobs, String commitMessage, ArrayList<String> parent, HashMap<String, String> added) {
-        this.blobs = blobs;
-        this.parent = parent;
+    private String parent;
+    private String date;
+    private HashMap<String, String> hashMap = new HashMap<>();
+
+    private String SHA1;
+
+    private String grandParent;
+
+    private boolean check = false;
+
+    private HashSet<String> checkName = new HashSet<>();
+
+    public Commit(String commitMessage, String parent) {
         this.commitMessage = commitMessage;
-        this.added = added;
-        this.date = new Date(0);
-        DateFormat dateFormat = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z", Locale.ENGLISH);
-        this.ID = Utils.sha1(this.commitMessage, dateFormat.format(date), this.parent.toString(), this.blobs.toString());
-        this.file = Utils.join(Repository.COMMITS_DIR, this.ID);
-    }
-
-    public static Commit fromSHA1(String ID) {
-        File file = Utils.join(Repository.COMMITS_DIR, ID);
-        return Utils.readObject(file, Commit.class);
-    }
-
-    public boolean restoreTrackedFile(String filePath) {
-        String blobID = added.get(filePath);
-
-        if (blobID == null) {
-            return false;
+        this.parent = parent;
+        if (parent == null) {
+            this.date = new SimpleDateFormat("E MMM dd HH:mm:ss yyyy").format( new Date(70, Calendar.JANUARY, 1, 0, 0, 0)) + " +0630";
+        } else {
+            this.date = new SimpleDateFormat("E MMM dd HH:mm:ss yyyy").format(new Date()) + " +0630";
         }
-
-        Helper.blobFromFile(blobID).write();
-        return true;
     }
 
-    public HashMap<String, String> blobs() { return blobs; }
+    public void updateSHA1(String newSHA1) { this.SHA1 = newSHA1;}
+
+    public void updateHashMap(HashMap<String, String> newHashMap) { this.hashMap = newHashMap; }
+
+    public String SHA1() { return SHA1; }
+
+    public HashMap<String, String> hashMap() { return this.hashMap; }
+
+    public String parent() { return parent; }
+
+    public String grandParent() { return grandParent; }
+
+    public String date() { return date; }
+
     public String commitMessage() { return commitMessage; }
-    public Date date() { return date; }
-    public String hash() { return hash; }
 
-    public String ID() { return ID; }
+    public void checkChange(boolean check) { this.check = check; }
 
-    public HashMap<String, String> added() { return added; }
-
-    public File file() { return file; }
-
+    public HashSet<String> checkName() { return this.checkName; }
 }

@@ -1,25 +1,23 @@
 package gitlet;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Objects;
+import java.sql.Blob;
+import java.util.*;
 
 
 import static gitlet.Utils.*;
 
-// TODO: any imports you need here
+import edu.princeton.cs.algs4.ST;
 import org.junit.Test;
 
 /** Represents a gitlet repository.
- *  TODO: It's a good idea to give a description here of what else this Class
  *  does at a high level.
  *
- *  @author TODO
+ *  @author Raphael Pelayo
  */
 public class Repository {
     /**
-     * TODO: add instance variables here.
+     *
      *
      * List all instance variables of the Repository class here with a useful
      * comment above them describing what that variable represents and how that
@@ -27,165 +25,387 @@ public class Repository {
      */
 
 
-    private Commit commit;
-    private String headPointer;
-    private String head = "master";
-    public static final int ID_LENGTH = 40;
-
-
-
     /** The current working directory. */
     public static final File CWD = new File(System.getProperty("user.dir"));
     /** The .gitlet directory. */
     public static final File GITLET_DIR = join(CWD, ".gitlet");
     public static final File COMMITS_DIR = join(GITLET_DIR, "commits");
-    public static final File BRANCHES_DIR = join(GITLET_DIR, "branches");
-    public static final File CURRENT_BRANCH = join(GITLET_DIR, "CURRENT_BRANCH.txt");
-    public static final File STAGING_AREA = join(GITLET_DIR, "staging-area");
-    public static final File OBJECTS_DIR = join(GITLET_DIR, "objects");
-    public static final File HEAD = join(GITLET_DIR, "HEAD.txt");
-    public StagingArea stagingArea = STAGING_AREA.exists() ? Utils.readObject(Repository.STAGING_AREA, StagingArea.class) : new StagingArea();
-    public Repository() {
+    public static final File BLOBS_DIR = join(GITLET_DIR, "blobs");
+    public static final File REFS_DIR = join(GITLET_DIR, "refs");
+    public static final File HEAD_FILE = join(GITLET_DIR, "HEAD");
+    public static final File STAGING_FILE = join(GITLET_DIR, "staging-area");
+    public static final File REMOTES_DIR = join(GITLET_DIR, "remotes");
 
-    }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public void init() {
-        if (GITLET_DIR.exists()) {
+        if(GITLET_DIR.exists()){
             System.out.println("A Gitlet version-control system already exists in the current directory.");
-            return;
         }
-        GITLET_DIR.mkdir();
-        BRANCHES_DIR.mkdir();
-        COMMITS_DIR.mkdir();
-        OBJECTS_DIR.mkdir();
-
         try {
-            HEAD.createNewFile();
+            COMMITS_DIR.mkdirs();
+            BLOBS_DIR.mkdirs();
+            REFS_DIR.mkdirs();
+            HEAD_FILE.createNewFile();
+            STAGING_FILE.createNewFile();
+            REMOTES_DIR.mkdirs();
+        } catch (IOException exception) {
+            System.out.println("IOException occurred on init.");
         }
-        catch (IOException exception) { System.out.println("IOException occurred while creating text file."); }
-        try {
-            CURRENT_BRANCH.createNewFile();
-        }
-        catch (IOException exception) { System.out.println("IOException occurred while creating current branch file."); }
 
-        stagingArea = new StagingArea();
-        Utils.writeObject(Repository.STAGING_AREA, stagingArea);
-
-        Commit initialCommit = new Commit(new HashMap<>(), "initial commit", new ArrayList<String>(), new HashMap<String, String>());
-        Utils.writeObject(initialCommit.file(), initialCommit);
-
-        Branch.initHelper(HEAD, initialCommit.ID());
-
-        Branch initial = new Branch(initialCommit);
-        File branchFile = Utils.join(Repository.BRANCHES_DIR, initial.branch);
-        Utils.writeObject(branchFile, initial);
-        Utils.writeContents(Repository.CURRENT_BRANCH, initial.branch);
+        Commit commit = new Commit("initial commit", null);
+        Helper.writeCommit(commit, "main", this);
+        writeContents(HEAD_FILE, join("refs", "main").getPath());
+        StagingArea stagingArea = new StagingArea();
+        writeObject(STAGING_FILE, stagingArea);
     }
 
-    public void add(String fileName) {
-        File file = Helper.getFileCWD(fileName);
-        if (!file.exists()) {
+    public void add(String add) {
+        File addFile = join(CWD, add);
+        if (!addFile.exists()) {
             System.out.println("File does not exist.");
             return;
         }
-        if (stagingArea.add(file)) {
-            Utils.writeObject(Repository.STAGING_AREA, stagingArea);
+        StagingArea stagingArea = readObject(STAGING_FILE, StagingArea.class);
+        BlobFile blobs = new BlobFile(readContents(addFile));
+        String stringBlob = blobs.SHA1();
+        Commit currentCommit = Helper.currentCommit(this);
+        if (currentCommit.hashMap().containsKey(add)) {
+            if (!currentCommit.hashMap().get(add).equals(stringBlob)) {
+                try {
+                    File file = join(BLOBS_DIR, blobs.SHA1());
+                    file.createNewFile();
+                    writeObject(file, blobs);
+                } catch (IOException exception) {
+                    System.out.println("IOException occurred in add.");
+                    return;
+                }
+                stagingArea.add(add, stringBlob);
+            }
+            if (stagingArea.removed().contains(add)) {
+                stagingArea.removed().remove(add);
+            }
+        } else {
+            try {
+                File file = join(BLOBS_DIR, blobs.SHA1());
+                file.createNewFile();
+                writeObject(file, blobs);
+            } catch (IOException exception) {
+                System.out.println("IOException occurred in add.");
+                return;
+            }
+            stagingArea.add(add, stringBlob);
         }
+        writeObject(STAGING_FILE, stagingArea);
+    }
+
+    public void rm(String rm) {
+        StagingArea stagingArea = readObject(STAGING_FILE, StagingArea.class);
+        File file = join(CWD, rm);
+        Commit previousCommit = Helper.currentCommit(this);
+
+        if (stagingArea.added().containsKey(rm)) {
+            stagingArea.added().remove(rm);
+        } else if (previousCommit.hashMap().containsKey(rm)) {
+            stagingArea.removed().add(rm);
+            Utils.restrictedDelete(rm);
+        } else {
+            System.out.println("No reason to remove the file.");
+            return;
+        }
+        writeObject(STAGING_FILE, stagingArea);
+    }
+
+    public void rmBranch(String rm) {
+        if (!Objects.requireNonNull(plainFilenamesIn(REFS_DIR)).contains(rm)) {
+            System.out.println("A branch with that name does not exist.");
+            return;
+        }
+        File path = new File(readContentsAsString(HEAD_FILE));
+        String branch = path.getName();
+        if (branch.equals(rm)) {
+            System.out.println("Cannot remove the current branch.");
+        }
+        File remove = join(REFS_DIR, rm);
+        remove.delete();
     }
 
     public void commit(String commitMessage) {
-        if (stagingArea.isEmpty()) {
+
+        if (Objects.equals(commitMessage, "")) {
+            System.out.println("Please enter a commit message.");
+            return;
+        }
+
+        StagingArea stagingArea = readObject(STAGING_FILE, StagingArea.class);
+
+        if (stagingArea.added().isEmpty() && stagingArea.removed().isEmpty()) {
             System.out.println("No changes added to the commit.");
             return;
         }
-        HashMap<String, String> newTrackedMap = Helper.commitStagingArea(stagingArea);
 
-        Utils.writeObject(STAGING_AREA, stagingArea);
-
-        ArrayList<String> parents = new ArrayList<>();
-        Commit HEADCommit = Helper.commitFromFile(Utils.readContentsAsString(HEAD));
-
-        parents.add(HEADCommit.ID());
-
-        Commit commit = new Commit(newTrackedMap, commitMessage, parents, newTrackedMap);
-        Utils.writeObject(Utils.join(COMMITS_DIR, commit.ID()), commit);
-
-        Utils.writeContents(HEAD, commit.ID());
-
-        Branch currentBranch = new Branch(commit, Utils.readContentsAsString(CURRENT_BRANCH));
-        File file = Utils.join(BRANCHES_DIR, currentBranch.branch());
-        Utils.writeObject(file, currentBranch);
-        Utils.writeContents(CURRENT_BRANCH, currentBranch.branch);
+        Commit parentCommit = Helper.currentCommit(this);
+        String parentSHA1 = parentCommit.SHA1();
+        Commit currentCommit = new Commit(commitMessage, parentSHA1);
+        currentCommit.updateHashMap(parentCommit.hashMap());
+        for (String string : stagingArea.added().keySet()) {
+            currentCommit.hashMap().put(string, stagingArea.added().get(string));
+        }
+        for (String string : stagingArea.removed()) {
+            currentCommit.hashMap().remove(string);
+        }
+        File path = new File(readContentsAsString(HEAD_FILE));
+        Helper.writeCommit(currentCommit, path.getName(), this);
+        stagingArea.empty();
+        writeObject(STAGING_FILE, stagingArea);
     }
 
-    public void rm() {
-
-    }
-
-    public void log() {
-        File commitFile = Utils.join(Repository.COMMITS_DIR, Utils.readContentsAsString(HEAD));
-        Commit HEADCommit = Utils.readObject(commitFile, Commit.class);
-        Commit current = HEADCommit;
-
-        StringBuilder logBuilder = new StringBuilder();
-
-//        while (true) {
-//            logBuilder.append(current.getLog()).append("\n");
-//            ArrayList<String> parents = current.getParents();
-//            if (parents.size() == 0) {
-//                break;
-//            }
-//            String nextCommitId = parents.get(0);
-//            Commit nextCommit = Commit.fromFile(nextCommitId);
-//            current = nextCommit;
-//        }
-//        System.out.print(logBuilder);
-    }
-
-    public void globalLog() {
-
-    }
-
-    public void find(String fileName) {
-
-    }
-
-    public void status() {
-
-    }
-
-    public void checkout(String[] file) {
-        if (file[2] == null) {
-            String filePath = Helper.getFileCWD(file[1]).getPath();
-            if (!Helper.getHEADCommit(this).restoreTrackedFile(filePath)) {
-                System.out.println("File does not exist in that commit.");
+    public void checkout(String file) {
+        Commit previousCommit = Helper.currentCommit(this);
+        if (previousCommit.hashMap().containsKey(file)) {
+            File blob = join(BLOBS_DIR, previousCommit.hashMap().get(file));
+            BlobFile blobFile = readObject(blob, BlobFile.class);
+            // overwrite or create new file with contents in retrieved blob
+            File newVersion = join(CWD,file);
+            try {
+                newVersion.createNewFile();
+            } catch (IOException exception) {
+                System.out.println("IOException occurred during checkout.");
+                return;
             }
-        else if (Objects.equals(file[1], "--")) {
-            String filePathTwo = Helper.getFileCWD(file[2]).getPath();
-            if (!Helper.getHEADCommit(this).restoreTrackedFile(filePathTwo)) {
-                System.out.println("File does not exist in that commit.");
+            writeContents(newVersion, (Object) blobFile.blobContent());
+        } else {
+            System.out.println("File does not exist in that commit.");
+        }
+    }
+
+    public void checkout(String ID, String file) {
+        if (!plainFilenamesIn(COMMITS_DIR).contains(ID)) {
+            System.out.println("No commit with that id exists.");
+            return;
+        }
+        Commit previousCommit = Helper.oldCommit(ID, this);
+
+        if (previousCommit.hashMap().containsKey(file)) {
+            String blobs = previousCommit.hashMap().get(file);
+            Helper.create(blobs, file, this);
+        } else {
+            System.out.println("File does not exist in that commit.");
+        }
+    }
+
+    public void checkoutForBranches(String branchName) {
+        if (!Objects.requireNonNull(plainFilenamesIn(REFS_DIR)).contains(branchName)) {
+            System.out.println("No such branch exists.");
+            return;
+        }
+        File path = new File(readContentsAsString(HEAD_FILE));
+        String branch = path.getName();
+        if (branch.equals(branchName)) {
+            System.out.println("No need to checkout the current branch.");
+            return;
+        }
+        Commit previousCommit = Helper.currentCommit(this);
+        writeContents(HEAD_FILE, join("refs", branchName).getPath());
+        Commit previousCommitTwo = Helper.currentCommit(this);
+        for (String string : Objects.requireNonNull(plainFilenamesIn(CWD))) {
+            if (!previousCommit.hashMap().containsKey(string)) {
+                if (previousCommitTwo.hashMap().containsKey(string)) {
+                    System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                }
+            }
+        }
+        if (!previousCommit.SHA1().equals(previousCommitTwo.SHA1())){
+            for (String string : previousCommitTwo.hashMap().keySet()) {
+                String blob = previousCommitTwo.hashMap().get(string);
+                Helper.create(blob, string, this);
+            }
+            for (String string : previousCommit.hashMap().keySet()) {
+                if (!previousCommitTwo.hashMap().containsKey(string)) {
+                    File remove = join(CWD, string);
+                    Utils.restrictedDelete(remove);
                 }
             }
         }
     }
 
-    public void branch(String branchName) {
+    public void log() {
+        Commit previousCommit = Helper.currentCommit(this);
+        while (previousCommit.parent() != null) {
+            Helper.logHelper(previousCommit);
+            File path = join(COMMITS_DIR, previousCommit.parent());
+            previousCommit = readObject(path, Commit.class);
+        }
+        Helper.logHelper(previousCommit);
+    }
+
+    public void status() {
+        if(!GITLET_DIR.exists()){
+            System.out.println("Not in an initialized Gitlet directory.");
+            return;
+        }
+        System.out.println("=== Branches ===");
+        File path = new File(readContentsAsString(HEAD_FILE));
+        String branch = path.getName();
+        for (String string : Objects.requireNonNull(plainFilenamesIn(REFS_DIR))) {
+            if (string.equals(branch)) {
+                System.out.println("*" + string);
+                continue;
+            }
+            System.out.println(string);
+        }
+
+        System.out.println();
+
+        System.out.println("=== Staged Files ===");
+        StagingArea stagingArea = readObject(STAGING_FILE,StagingArea.class);
+        HashMap<Integer, String> placeHolder = new HashMap<>();
+        int count = 0;
+        int remember = 0;
+        for (String string : stagingArea.added().keySet()) {
+            placeHolder.put(count, string);
+            count += 1;
+        }
+        count -= 1;
+        for (Integer integer : placeHolder.keySet()) {
+            System.out.println(placeHolder.get(count));
+            count -= 1;
+        }
+        System.out.println();
+
+        System.out.println("=== Removed Files ===");
+        for (String string : stagingArea.removed()) {
+            System.out.println(string);
+        }
+        System.out.println();
+
+        Commit previousCommit = Helper.currentCommit(this);
+        System.out.println("=== Modifications Not Staged For Commit ===");
+        List<String> workingDirectory = plainFilenamesIn(CWD);
+        HashMap<String,String> hashMap = previousCommit.hashMap();
+        HashMap<String, String> added = stagingArea.added();
+        List<String> removed = stagingArea.removed();
+
+        assert workingDirectory != null;
+        for (String string: workingDirectory) {
+            File file = join(CWD, string);
+            BlobFile blobFile = new BlobFile(Utils.readContents(file));
+            if (hashMap.containsKey(string)) {
+                if (!hashMap.get(string).equals(blobFile.SHA1()) && !added.containsKey(string)) {
+                    System.out.println(string + " (modified");
+                }
+            }
+            if (added.containsKey(string)) {
+                if (!added.get(string).equals(blobFile.SHA1())) {
+                    System.out.println(string + " (modified)");
+                }
+            }
+        }
+
+        System.out.println();
+
+        System.out.println("=== Untracked Files ===");
+        for (String string : Objects.requireNonNull(plainFilenamesIn(CWD))) {
+            if (!previousCommit.hashMap().containsKey(string)) {
+                if (!stagingArea.added().containsKey(string)) {
+                    System.out.println(string);
+                }
+            }
+        }
+        System.out.println();
+    }
+
+    public void globalLog() {
+        List<String> log = plainFilenamesIn(COMMITS_DIR);
+        assert log != null;
+        for (String string : log) {
+            Commit commit = Helper.oldCommit(string, this);
+            Helper.logHelper(commit);
+        }
+    }
+
+    public void find(String find) {
+        boolean exists = false;
+        for (String SHA1 : Objects.requireNonNull(plainFilenamesIn(COMMITS_DIR))) {
+            Commit searchCommit = Helper.oldCommit(SHA1, this);
+            if (searchCommit.commitMessage().equals(find)) {
+                System.out.println(SHA1);
+                exists = true;
+            }
+        }
+        if (!exists) {
+            System.out.println("Found no commit with that message.");
+        }
+    }
+
+    public void branch(String branch) {
+        if (Objects.requireNonNull(plainFilenamesIn(REFS_DIR)).contains(branch)) {
+            System.out.println("A branch with that name already exists.");
+            return;
+        }
+        File branchFile = join(REFS_DIR, branch);
+        try {
+            branchFile.createNewFile();
+        } catch (IOException exception) {
+            System.out.println("IOException occurred during branch.");
+            return;
+        }
+        Commit previousCommit = Helper.currentCommit(this);
+        previousCommit.checkChange(true);
+        File path = new File(readContentsAsString(HEAD_FILE));
+        previousCommit.checkName().add(path.getName());
+        previousCommit.checkName().add(branch);
+        File file = join(COMMITS_DIR, previousCommit.SHA1());
+        writeObject(file, previousCommit);
+        writeContents(branchFile, previousCommit.SHA1());
+    }
+
+    public void reset(String reset) {
+        if (!Objects.requireNonNull(plainFilenamesIn(COMMITS_DIR)).contains(reset)) {
+            System.out.println("No commit with that id exists.");
+            return;
+        }
+        Commit previousCommit = Helper.currentCommit(this);
+        Commit checkCommit = Helper.oldCommit(reset, this);
+        for (String string : Objects.requireNonNull(plainFilenamesIn(CWD))) {
+            if (!previousCommit.hashMap().containsKey(string)) {
+                if (checkCommit.hashMap().containsKey(string)) {
+                    System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                    return;
+                }
+            } else {
+                this.rm(string);
+            }
+        }
+        try {
+            if (!previousCommit.SHA1().equals(checkCommit.SHA1())){
+                for (String string : checkCommit.hashMap().keySet()) {
+                    String blob = checkCommit.hashMap().get(string);
+                    Helper.create(blob, string, this);
+                }
+                for (String string : previousCommit.hashMap().keySet()) {
+                    if (!checkCommit.hashMap().containsKey(string)){
+                        File remove = join(CWD, string);
+                        Utils.restrictedDelete(remove);
+                    }
+                }
+            }
+            File path = new File(readContentsAsString(HEAD_FILE));
+            File file = join(REFS_DIR, path.getName());
+            file.createNewFile();
+            writeContents(file, checkCommit.SHA1());
+        } catch (IOException exception) {
+            System.out.println("IOException occurred during reset.");
+        }
 
     }
 
-    public void rmBranch(String branchName) {
-
-    }
-
-    public void reset(String ID) {
-
-    }
-
-    public void merge(String branchName) {
-
-    }
-
-    public File getHEAD() {
-        return HEAD;
-    }
+    public File getCWD() { return CWD; }
+    public File getGitletDir() { return GITLET_DIR; }
+    public File getCommitsDir() { return COMMITS_DIR; }
+    public File getHeadFile() { return HEAD_FILE; }
+    public File getStagingFile() { return STAGING_FILE; }
+    public File getBlobsDir() { return BLOBS_DIR; }
+    public File getRefsDir() { return REFS_DIR; }
+    public File getRemotesDir() { return REMOTES_DIR; }
 }

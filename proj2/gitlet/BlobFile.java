@@ -4,31 +4,17 @@ import java.io.File;
 import java.io.Serializable;
 
 public class BlobFile implements Serializable {
-    private final File parent;
+    File blob = Repository.BLOBS_DIR;
+    private byte[] blobContent;
+    private String SHA1;
 
-    private final byte[] content;
-
-    private final String ID;
-
-    private final File fileName;
-
-    public BlobFile(File parent) {
-        this.parent = parent;
-        this.content = Utils.readContents(parent);
-        String filePath = parent.getPath();
-        this.ID = Utils.sha1(filePath, this.content);
-        this.fileName = Utils.join(Repository.OBJECTS_DIR, this.ID.substring(0, 2), this.ID.substring(2));
+    public BlobFile (byte[] bytes) {
+        this.blobContent = bytes;
+        this.SHA1 = Utils.sha1((Object) Utils.serialize((Serializable) this));
     }
 
-    public void saveFile() {
-        File parentFile = this.parent.getParentFile();
-        if (!parentFile.exists()) {
-            parentFile.mkdirs();
-        }
-        Utils.writeObject(this.parent, this);
-    }
+    public String SHA1() { return SHA1; }
 
-    public void write() { Utils.writeContents(parent, content);}
+    public byte[] blobContent() { return blobContent; }
 
-    public String ID() { return ID; }
 }

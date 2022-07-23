@@ -4,52 +4,24 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class StagingArea implements Serializable {
 
+    final File stages = Repository.STAGING_FILE;
+    private HashMap<String, String> added = new HashMap<>();
+    private List<String> removed = new ArrayList<>();
 
-    private HashMap<String, String> added;
-    private ArrayList<String> removed;
+    public void add(String file, String blobFiles) { added.put(file, blobFiles); }
 
-    private HashMap<String, String> changes;
-    public StagingArea() {
-        added = new HashMap<>();
-        removed = new ArrayList<>();
-        changes = new HashMap<>();
-    }
+    public void remove(String file) { removed.add(file); }
 
     public HashMap<String, String> added() { return added; }
 
-    public HashMap<String, String> changes() { return changes; }
+    public List<String> removed() { return removed; }
 
-    public ArrayList<String> removed() { return removed; }
-
-    public boolean add(File file) {
-        BlobFile blob = new BlobFile(file);
-        String filePath = file.getPath();
-        String prevID = added.put(filePath, blob.ID());
-        blob.saveFile();
-        return true;
-    }
-
-    public HashMap<String, String> prepForCommit() {
-        changes.putAll(added);
-        for (String filePath : removed) {
-            changes.remove(filePath);
-        }
-        added = new HashMap<>();
-        return changes;
-    }
-
-    public HashMap<String, String> getAdded() { return added; }
-
-    public boolean contains(String name) { return added.containsKey(name); }
-
-    public void clearStage() { added = new HashMap<>(); }
-
-    public boolean isEmpty() { return added.size() == 0; }
-
-    public void wipe() {
+    public void empty() {
         added.clear();
         removed.clear();
     }

@@ -1,74 +1,62 @@
 package gitlet;
 
-import java.io.*;
-import java.nio.file.Paths;
-import java.sql.Blob;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Objects;
+import java.io.File;
+import java.io.IOException;
 
+import static gitlet.Utils.*;
 
 public class Helper {
 
-    public static void storeFile(String path, Object object) {
-        File output = new File(path);
+    public static void writeCommit(Commit commit, String branch, Repository repository) {
         try {
-            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(output));
-            out.writeObject(object);
-            out.close();
+            final String SHA1 = Utils.sha1((Object) Utils.serialize(commit));
+            commit.updateSHA1(SHA1);
+            final File current = join(repository.getCommitsDir(), SHA1);
+            current.createNewFile();
+            writeObject(current, commit);
+
+            final File branchName = join(repository.getRefsDir(), branch);
+            branchName.createNewFile();
+            writeContents(branchName, SHA1);
+        } catch (IOException exception) {
+            System.out.println("IOException occured while writing commit.");
         }
-        catch (FileNotFoundException exception) { System.out.println("FileNotFound occurred while storing file."); }
-        catch (IOException exception) { System.out.println("IOException occurred while storing file."); }
     }
 
-    public static void writeFile(String path, String text) {
+    public static Commit currentCommit(Repository repository) {
+        String path = readContentsAsString(repository.getHeadFile());
+        File file = join(repository.getGitletDir(), path);
+        String string = readContentsAsString(file);
+        File commitPath = join(repository.getCommitsDir(), string);
+        return readObject(commitPath, Commit.class);
+    }
+
+    public static Commit oldCommit(String ID, Repository repository) {
+        File oldCommitPath = join(repository.getCommitsDir(), ID);
+        return readObject(oldCommitPath, Commit.class);
+    }
+
+    public static void logHelper(Commit currentCommit) {
+        System.out.println("===");
+        System.out.println("commit "+ currentCommit.SHA1());
+        if (currentCommit.grandParent() != null){
+            System.out.println("Merge: "+currentCommit.parent().substring(0,7)+" "+currentCommit.grandParent().substring(0,7));
+        }
+        System.out.println("Date: "+ currentCommit.date());
+        System.out.println(currentCommit.commitMessage());
+        System.out.println();
+    }
+
+    public static void create(String blobs, String fileName, Repository repository) {
+        File blobFile = join(repository.getBlobsDir(), blobs);
+        BlobFile read = readObject(blobFile, BlobFile.class);
+        File create = join(repository.getCWD(), fileName);
         try {
-            File logFile = new File(path);
-            BufferedWriter out = new BufferedWriter(new FileWriter(logFile, false));
-            out.write(text);
-            out.close();
+            create.createNewFile();
+        } catch (IOException exception) {
+            System.out.println("IOException occurred when creating file.");
         }
-        catch (FileNotFoundException exception) { System.out.println("FileNotFound occurred while writing file."); }
-        catch (IOException exception) { System.out.println("IOException occurred while writing file."); }
-    }
-
-    public static File getFileCWD(String name) {
-        if (Paths.get(name).isAbsolute()) {
-            return new File(name);
-        } else {
-            return Utils.join(Repository.CWD, name);
-        }
-    }
-
-    public static File getObjectFile(String ID) {
-        return Utils.join(Repository.OBJECTS_DIR, ID.substring(0, 2), ID.substring(2));
-    }
-
-    public static Commit getHEADCommit(Repository repository) {
-        String HEADCommitID = getHeadCommitID(repository);
-        return commitFromFile(HEADCommitID);
-    }
-
-    public static String getHeadCommitID(Repository repository) {
-        return Utils.readContentsAsString(repository.getHEAD());
-    }
-
-    public static Commit commitFromFile(String ID) {
-        File commitFile = Utils.join(Repository.COMMITS_DIR, ID);
-        return Utils.readObject(commitFile, Commit.class);
-    }
-
-    public static BlobFile blobFromFile(String ID) {
-        return Utils.readObject(getObjectFile(ID), BlobFile.class);
-    }
-
-    public static HashMap<String, String> commitStagingArea(StagingArea stagingArea) {
-        stagingArea.changes().putAll(stagingArea.added());
-        for (String filePath : stagingArea.removed()) {
-            stagingArea.changes().remove(filePath);
-        }
-        stagingArea.wipe();
-        return stagingArea.changes();
+        Utils.writeContents(create, (Object) read.blobContent());
     }
 
 }
