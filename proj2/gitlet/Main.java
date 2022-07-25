@@ -85,9 +85,6 @@ public class Main {
                 }
                 break;
             case "merge":
-                if (lengthTest(args, 2)) {
-                    repository.merge(args[1]);
-                }
                 break;
             default:
                 System.out.println("No command with that name exists.");
