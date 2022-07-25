@@ -5,11 +5,15 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class StagingArea implements Serializable {
 
-    final File stages = Repository.STAGING_FILE;
+    private File stages;
+
+    public StagingArea(Repository repository) {
+        stages = repository.STAGING_FILE;
+    }
+
     private HashMap<String, String> added = new HashMap<>();
     private List<String> removed = new ArrayList<>();
 
@@ -33,5 +37,4 @@ public class StagingArea implements Serializable {
         added.clear();
         removed.clear();
     }
-
 }

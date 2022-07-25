@@ -1194,7 +1194,7 @@ public class GitletTests {
     }
 
     @Test
-    public void test37_reset1() {
+        public void test37_reset1() {
         i_setup2();
         gitletCommand(new String[]{"branch", "other"}, "");
         writeFile(WUG2, "h.txt");

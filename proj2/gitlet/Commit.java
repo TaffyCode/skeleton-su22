@@ -1,31 +1,28 @@
 package gitlet;
 
-// TODO: any imports you need here
-
-import java.io.File;
 import java.io.Serializable;
-import java.lang.reflect.Array;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
  * Represents a gitlet commit object.
- *  TODO: It's a good idea to give a description here of what else this Class
- *  does at a high level.
  *
- * @author TODO
+ * @author Raphael Pelayo
  */
 public class Commit implements Serializable {
 
     private String commitMessage;
     private String parent;
-    private String date;
+    private String dte;
     private HashMap<String, String> hashMap = new HashMap<>();
 
-    private String SHA1;
+    private String sha1;
 
     private String grandParent;
+
+    private HashSet<String> mergeHelp = new HashSet<>();
+
+    public HashSet<String> mergeHelp() { return mergeHelp; }
 
     private boolean check = false;
 
@@ -35,22 +32,25 @@ public class Commit implements Serializable {
         this.commitMessage = commitMessage;
         this.parent = parent;
         if (parent == null) {
-            this.date = new SimpleDateFormat("E MMM dd HH:mm:ss yyyy").format(new Date(70, Calendar.JANUARY, 1, 0, 0, 0)) + " +0630";
+            Date formatted = new Date(70, Calendar.JANUARY, 1, 0, 0, 0);
+            this.dte = new SimpleDateFormat("E MMM dd HH:mm:ss yyyy").format(formatted) + " +0630";
         } else {
-            this.date = new SimpleDateFormat("E MMM dd HH:mm:ss yyyy").format(new Date()) + " +0630";
+            this.dte = new SimpleDateFormat("E MMM dd HH:mm:ss yyyy").format(new Date()) + " +0630";
         }
     }
 
     public void updateSHA1(String newSHA1) {
-        this.SHA1 = newSHA1;
+        this.sha1 = newSHA1;
     }
+
+    public void updateGrandparent(String grandParent) { this.grandParent = grandParent; }
 
     public void updateHashMap(HashMap<String, String> newHashMap) {
         this.hashMap = newHashMap;
     }
 
-    public String SHA1() {
-        return SHA1;
+    public String sha1() {
+        return sha1;
     }
 
     public HashMap<String, String> hashMap() {
@@ -66,7 +66,7 @@ public class Commit implements Serializable {
     }
 
     public String date() {
-        return date;
+        return dte;
     }
 
     public String commitMessage() {
@@ -80,4 +80,6 @@ public class Commit implements Serializable {
     public HashSet<String> checkName() {
         return this.checkName;
     }
+
+    public boolean check() { return this.check; }
 }
