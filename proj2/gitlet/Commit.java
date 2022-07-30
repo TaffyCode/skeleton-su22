@@ -80,6 +80,4 @@ public class Commit implements Serializable {
     public HashSet<String> checkName() {
         return this.checkName;
     }
-
-    public boolean check() { return this.check; }
 }
