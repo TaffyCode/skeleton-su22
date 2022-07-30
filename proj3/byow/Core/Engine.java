@@ -45,8 +45,21 @@ public class Engine {
         //
         // See proj3.byow.InputDemo for a demo of how you can make a nice clean interface
         // that works for many different input types.
-
-        TETile[][] finalWorldFrame = null;
+        WorldGenerator a;
+        if (input.charAt(0) == 'N' || input.charAt(0) == 'n') {
+            String last = input.substring(input.length() - 1);
+            char lastCharacter = last.charAt(0);
+            if (lastCharacter == 'S' || lastCharacter == 's') {
+                String seed = input.substring(1, input.length() - 1);
+                Long SEED = Long.parseLong(seed);
+                a = new WorldGenerator(SEED);
+            } else {
+                throw new Error("Seed didn't end with 'S' or 's'");
+            }
+        } else {
+            throw new Error("Seed didn't start with 'N' or 'n'");
+        }
+        TETile[][] finalWorldFrame = a.getWorld();
         return finalWorldFrame;
     }
 }
