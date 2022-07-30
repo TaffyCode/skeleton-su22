@@ -38,21 +38,14 @@ public class Engine {
      * @return the 2D TETile[][] representing the state of the world
      */
     public TETile[][] interactWithInputString(String input) {
-        // TODO: Fill out this method so that it run the engine using the input
-        // passed in as an argument, and return a 2D tile representation of the
-        // world that would have been drawn if the same inputs had been given
-        // to interactWithKeyboard().
-        //
-        // See proj3.byow.InputDemo for a demo of how you can make a nice clean interface
-        // that works for many different input types.
         WorldGenerator a;
         if (input.charAt(0) == 'N' || input.charAt(0) == 'n') {
             String last = input.substring(input.length() - 1);
             char lastCharacter = last.charAt(0);
             if (lastCharacter == 'S' || lastCharacter == 's') {
                 String seed = input.substring(1, input.length() - 1);
-                Long SEED = Long.parseLong(seed);
-                a = new WorldGenerator(SEED);
+                Long newSeed = Long.parseLong(seed);
+                a = new WorldGenerator(newSeed);
             } else {
                 throw new Error("Seed didn't end with 'S' or 's'");
             }

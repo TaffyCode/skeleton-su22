@@ -1,6 +1,5 @@
 package byow.Core;
 
-import byow.TileEngine.TERenderer;
 import byow.TileEngine.TETile;
 import byow.TileEngine.Tileset;
 
@@ -14,9 +13,9 @@ public class WorldGenerator {
 
     private List<Room> roomsList = new ArrayList<Room>();
 
-    public TETile[][] world = new TETile[WIDTH][HEIGHT];
-    public WorldGenerator(Long SEED) {
-        RANDOM = new Random(SEED);
+    private TETile[][] world = new TETile[WIDTH][HEIGHT];
+    public WorldGenerator(Long seed) {
+        RANDOM = new Random(seed);
         for (int x = 0; x < WIDTH; x += 1) {
             for (int y = 0; y < HEIGHT; y += 1) {
                 world[x][y] = Tileset.NOTHING;
@@ -29,7 +28,9 @@ public class WorldGenerator {
     public void rooms() {
         int roomCount = RandomUtils.uniform(RANDOM, 20, 30);
         while (roomCount != 0) {
-            if (roomBuild(RandomUtils.uniform(RANDOM, 0, WIDTH - 20), RandomUtils.uniform(RANDOM, 0, HEIGHT - 20))) {
+            int xCoord = RandomUtils.uniform(RANDOM, 0, WIDTH - 20);
+            int yCoord = RandomUtils.uniform(RANDOM, 0, HEIGHT - 20);
+            if (roomBuild(xCoord, yCoord)) {
                 roomCount--;
             }
         }
@@ -76,8 +77,12 @@ public class WorldGenerator {
                 } else {
                     y = RandomUtils.uniform(RANDOM, list[1][0], list[1][1]);
                 }
-                if (y == 0) { y++; }
-                if (y == HEIGHT) { y--; }
+                if (y == 0) {
+                    y++;
+                }
+                if (y == HEIGHT) {
+                    y--;
+                }
                 while (builder <= finish) {
                     if (attemptPlace(builder, y)) {
                         attemptWall(builder, y + 1);
@@ -101,8 +106,12 @@ public class WorldGenerator {
                 } else {
                     x = RandomUtils.uniform(RANDOM, list[0][0], list[0][1]);
                 }
-                if (x == 0) { x++; }
-                if (x == WIDTH) { x--; }
+                if (x == 0) {
+                    x++;
+                }
+                if (x == WIDTH) {
+                    x--;
+                }
                 while (builder <= finish) {
                     world[x][builder] = Tileset.FLOOR;
                     if (world[x - 1][builder] == Tileset.NOTHING) {
@@ -115,48 +124,54 @@ public class WorldGenerator {
                 }
             }
         } else {
-            int jointX = RandomUtils.uniform(RANDOM, second.getX() + 1, second.getX() + second.getLength() - 1);
-            int jointY = RandomUtils.uniform(RANDOM, first.getY() + 1, first.getY() + first.getHeight() - 1);
-            int currentX = jointX;
-            int currentY = jointY;
-            if (jointX <= first.getX()) {
-                while (currentX <= first.getX()) {
-                    if (attemptPlace(currentX, currentY)) {
-                        attemptWall(currentX, currentY + 1);
-                        attemptWall(currentX, currentY - 1);
-                    }
-                    currentX++;
+            hallwayHelper(first, second);
+        }
+    }
+
+    public void hallwayHelper(Room first, Room second) {
+        int coordX = second.getX() + second.getLength() - 1;
+        int coordY = first.getY() + first.getHeight() - 1;
+        int jointX = RandomUtils.uniform(RANDOM, second.getX() + 1, coordX);
+        int jointY = RandomUtils.uniform(RANDOM, first.getY() + 1, coordY);
+        int currentX = jointX;
+        int currentY = jointY;
+        if (jointX <= first.getX()) {
+            while (currentX <= first.getX()) {
+                if (attemptPlace(currentX, currentY)) {
+                    attemptWall(currentX, currentY + 1);
+                    attemptWall(currentX, currentY - 1);
                 }
-            } else if (jointX >= first.getX()) {
-                while (currentX > first.getX()) {
-                    if (attemptPlace(currentX, currentY)) {
-                        attemptWall(currentX, currentY + 1);
-                        attemptWall(currentX, currentY - 1);
-                    }
-                    currentX--;
-                }
+                currentX++;
             }
-            if (jointY <= second.getY()) {
-                while (currentY <= second.getY()) {
-                    if (attemptPlace(jointX, currentY)) {
-                        attemptWall(jointX + 1, currentY);
-                        attemptWall(jointX - 1, currentY);
-                    }
-                    currentY++;
+        } else if (jointX >= first.getX()) {
+            while (currentX > first.getX()) {
+                if (attemptPlace(currentX, currentY)) {
+                    attemptWall(currentX, currentY + 1);
+                    attemptWall(currentX, currentY - 1);
                 }
-            } else if (jointY >= second.getY()) {
-                while (currentY > second.getY()) {
-                    if (attemptPlace(jointX, currentY)) {
-                        attemptWall(jointX + 1, currentY);
-                        attemptWall(jointX - 1, currentY);
-                    }
-                    currentY--;
-                }
+                currentX--;
             }
-            for (int x = jointX - 1; x <= jointX + 1; x++) {
-                for (int y = jointY - 1; y <= jointY + 1; y++) {
-                    attemptWall(x, y);
+        }
+        if (jointY <= second.getY()) {
+            while (currentY <= second.getY()) {
+                if (attemptPlace(jointX, currentY)) {
+                    attemptWall(jointX + 1, currentY);
+                    attemptWall(jointX - 1, currentY);
                 }
+                currentY++;
+            }
+        } else if (jointY >= second.getY()) {
+            while (currentY > second.getY()) {
+                if (attemptPlace(jointX, currentY)) {
+                    attemptWall(jointX + 1, currentY);
+                    attemptWall(jointX - 1, currentY);
+                }
+                currentY--;
+            }
+        }
+        for (int x = jointX - 1; x <= jointX + 1; x++) {
+            for (int y = jointY - 1; y <= jointY + 1; y++) {
+                attemptWall(x, y);
             }
         }
     }
@@ -186,7 +201,9 @@ public class WorldGenerator {
         if (searchSpace(x, y, x + roomLength, y + roomHeight)) {
             for (int xCoord = x; xCoord <= roomLength + x; xCoord += 1) {
                 for (int yCoord = y; yCoord <= roomHeight + y; yCoord += 1) {
-                    if (xCoord == x || yCoord == y || xCoord == x + roomLength || yCoord == y + roomHeight) {
+                    if (xCoord == x || yCoord == y) {
+                        world[xCoord][yCoord] = Tileset.WALL;
+                    } else if (xCoord == x + roomLength || yCoord == y + roomHeight) {
                         world[xCoord][yCoord] = Tileset.WALL;
                     } else {
                         world[xCoord][yCoord] = Tileset.FLOOR;
@@ -227,5 +244,7 @@ public class WorldGenerator {
         return closestSoFar;
     }
 
-    public TETile[][] getWorld() { return world; }
+    public TETile[][] getWorld() {
+        return world;
+    }
 }

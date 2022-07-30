@@ -3,7 +3,9 @@ package byow.Core;
 public class Helper {
     public static int absMinus(int x, int y) {
         int z = x - y;
-        if (z < 0) { return -z; }
+        if (z < 0) {
+            return -z;
+        }
         return z;
     }
 
