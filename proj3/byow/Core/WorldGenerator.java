@@ -15,17 +15,7 @@ public class WorldGenerator {
     private List<Room> roomsList = new ArrayList<Room>();
 
     public TETile[][] world = new TETile[WIDTH][HEIGHT];
-
-    public TERenderer ter = new TERenderer();
-
-    public static void main(String[] args) {
-        WorldGenerator a = new WorldGenerator(2421L);
-        a.ter.renderFrame(a.getWorld());
-    }
-
-
     public WorldGenerator(Long SEED) {
-        ter.initialize(WIDTH, HEIGHT);
         RANDOM = new Random(SEED);
         for (int x = 0; x < WIDTH; x += 1) {
             for (int y = 0; y < HEIGHT; y += 1) {
