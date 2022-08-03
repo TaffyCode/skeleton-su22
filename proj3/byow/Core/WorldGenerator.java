@@ -1,5 +1,6 @@
 package byow.Core;
 
+import byow.TileEngine.TERenderer;
 import byow.TileEngine.TETile;
 import byow.TileEngine.Tileset;
 
@@ -15,6 +16,8 @@ public class WorldGenerator {
 
     private TETile[][] world = new TETile[WIDTH][HEIGHT];
     public WorldGenerator(Long seed) {
+        TERenderer ter = new TERenderer();
+        ter.initialize(WIDTH, HEIGHT);
         RANDOM = new Random(seed);
         for (int x = 0; x < WIDTH; x += 1) {
             for (int y = 0; y < HEIGHT; y += 1) {
@@ -23,6 +26,7 @@ public class WorldGenerator {
         }
         rooms();
         hallways();
+        ter.renderFrame(world);
     }
 
     public void rooms() {
