@@ -212,12 +212,13 @@ public class DLList<T extends Comparable<T>> {
         DLList<T> smallElements = new DLList<>();
         DLList<T> largeElements = new DLList<>();
         T pivot = sentinel.next.item;
+        this.remove(sentinel.next);
 
         Node current = sentinel.next;
         while (current.item != null) {
             if (current.item.compareTo(pivot) < 0) {
                 smallElements.addLast(current.item);
-            } else if (current.item.compareTo(pivot) > 0){
+            } else if (current.item.compareTo(pivot) >= 0){
                 largeElements.addLast(current.item);
             }
             current = current.next;
