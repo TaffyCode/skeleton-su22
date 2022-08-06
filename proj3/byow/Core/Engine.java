@@ -2,19 +2,41 @@ package byow.Core;
 
 import byow.TileEngine.TERenderer;
 import byow.TileEngine.TETile;
+import edu.princeton.cs.algs4.StdDraw;
+
+import java.awt.*;
 
 public class Engine {
     TERenderer ter = new TERenderer();
     /* Feel free to change the width and height. */
-    public static final int WIDTH = 80;
-    public static final int HEIGHT = 30;
+    public static final int WIDTH = 100;
+    public static final int HEIGHT = 60;
 
     /**
      * Method used for exploring a fresh world. This method should handle all inputs,
      * including inputs from the main menu.
      */
     public void interactWithKeyboard() {
+        titleScreen();
     }
+
+    public void titleScreen() {
+        WorldGenerator world = new WorldGenerator(8451L);
+        ter.initialize(WIDTH, HEIGHT);
+        StdDraw.clear(Color.black);
+        StdDraw.setPenColor(Color.white);
+        Font title = new Font("Monaco", Font.BOLD, 64);
+        StdDraw.setFont(title);
+        StdDraw.text(50,45, "CS61B: Dungeon Game");
+        Font context = new Font("Monaco", Font.BOLD, 24);
+        StdDraw.setFont(context);
+        StdDraw.text(50, 40, "New Game (N)");
+        StdDraw.text(50, 38, "Load Game (L)");
+        StdDraw.text(50, 36, "Quit (Q)");
+        StdDraw.show();
+    }
+
+
 
     /**
      * Method used for autograding and testing your code. The input string will be a series

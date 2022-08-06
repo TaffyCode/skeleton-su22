@@ -19,6 +19,13 @@ public class WorldGenerator {
         TERenderer ter = new TERenderer();
         ter.initialize(WIDTH, HEIGHT);
         RANDOM = new Random(seed);
+        generate();
+        ter.renderFrame(world);
+    }
+
+    public void generate() {
+        TERenderer ter = new TERenderer();
+        ter.initialize(WIDTH, HEIGHT);
         for (int x = 0; x < WIDTH; x += 1) {
             for (int y = 0; y < HEIGHT; y += 1) {
                 world[x][y] = Tileset.NOTHING;

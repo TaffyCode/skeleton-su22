@@ -1,15 +1,10 @@
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.HashSet;
-import java.util.HashMap;
+import java.lang.reflect.Array;
+import java.util.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.io.BufferedReader;
 import java.nio.charset.Charset;
 import java.io.IOException;
-import java.util.Random;
-import java.util.Queue;
-import java.util.ArrayDeque;
 
 /* A mutable and finite Graph object. Edge labels are stored via a HashMap
    where labels are mapped to a key calculated by the following. The graph is
@@ -130,12 +125,60 @@ public class Graph {
     }
 
     public Graph prims(int start) {
-        // TODO: YOUR CODE HERE
-        return null;
+        Graph toReturn = new Graph();
+        ArrayList<Edge> availableEdges = new ArrayList<>();
+        ArrayList<Edge> alreadyIn = new ArrayList<>();
+
+        availableEdges.addAll(getEdges(start));
+
+        Edge smallestEdge = returnSmallestEdge(availableEdges);
+        alreadyIn.add(smallestEdge);
+        availableEdges.remove(smallestEdge);
+
+        int newNeighbor;
+        if (!toReturn.containsVertex(smallestEdge.getDest())) {
+            newNeighbor = smallestEdge.getDest();
+        } else {
+            newNeighbor = smallestEdge.getSource();
+        }
+
+        toReturn.addEdge(smallestEdge);
+
+        for (Edge edge : getEdges(newNeighbor)) {
+            if (!alreadyIn.contains(edge)) {
+                availableEdges.add(edge);
+            }
+        }
+
+        return toReturn;
+    }
+
+    public ArrayList<Edge> removeSmallestEdge(ArrayList<Edge> array) {
+        int min = Integer.MAX_VALUE;
+        Edge toRemove = null;
+        for (Edge edge : array) {
+            if (edge.getWeight() < min) {
+                min = edge.getWeight();
+                toRemove = edge;
+            }
+        }
+        array.remove(toRemove);
+        return array;
+    }
+
+    public Edge returnSmallestEdge(ArrayList<Edge> array) {
+        int min = Integer.MAX_VALUE;
+        Edge toRemove = null;
+        for (Edge edge : array) {
+            if (edge.getWeight() < min) {
+                min = edge.getWeight();
+                toRemove = edge;
+            }
+        }
+        return toRemove;
     }
 
     public Graph kruskals() {
-        // TODO: YOUR CODE HERE
         return null;
     }
 
