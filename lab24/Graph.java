@@ -131,23 +131,33 @@ public class Graph {
 
         availableEdges.addAll(getEdges(start));
 
-        Edge smallestEdge = returnSmallestEdge(availableEdges);
-        alreadyIn.add(smallestEdge);
-        availableEdges.remove(smallestEdge);
 
-        int newNeighbor;
-        if (!toReturn.containsVertex(smallestEdge.getDest())) {
-            newNeighbor = smallestEdge.getDest();
-        } else {
-            newNeighbor = smallestEdge.getSource();
-        }
+        boolean flag = false;
+        boolean helper = false;
+        while (!toReturn.spans(this)) {
 
-        toReturn.addEdge(smallestEdge);
+            Edge smallestEdge = returnSmallestEdge(availableEdges);
+            alreadyIn.add(smallestEdge);
+            availableEdges.remove(smallestEdge);
 
-        for (Edge edge : getEdges(newNeighbor)) {
-            if (!alreadyIn.contains(edge)) {
-                availableEdges.add(edge);
+            int newNeighbor;
+            if (!toReturn.containsVertex(smallestEdge.getDest())) {
+                newNeighbor = smallestEdge.getDest();
+            } else {
+                newNeighbor = smallestEdge.getSource();
             }
+
+            if ((!toReturn.containsVertex(smallestEdge.getDest()) || !toReturn.containsVertex(smallestEdge.getSource()))) {
+                toReturn.addEdge(smallestEdge);
+            }
+
+
+            for (Edge edge : getEdges(newNeighbor)) {
+                if (!alreadyIn.contains(edge) && (!toReturn.containsVertex(edge.getDest()) || !toReturn.containsVertex(edge.getSource())) ) {
+                    availableEdges.add(edge);
+                }
+            }
+            flag = true;
         }
 
         return toReturn;
@@ -179,7 +189,37 @@ public class Graph {
     }
 
     public Graph kruskals() {
-        return null;
+        Graph toReturn = new Graph();
+        for (int vertex: getAllVertices()) {
+            toReturn.addVertex(vertex);
+        }
+        for (Edge edge : getAllEdges()) {
+            if (!toReturn.isConnected(edge.getSource(), edge.getDest())) {
+                toReturn.addEdge(edge);
+            }
+        }
+        return toReturn;
+    }
+
+    public boolean isConnected(int start, int end) {
+        if (!containsVertex(start) || !containsVertex(end)) {
+            return false;
+        }
+        LinkedList<Integer> total = new LinkedList<>();
+        HashSet<Integer> opened = new HashSet<>();
+        total.add(start);
+        while (!total.isEmpty()) {
+            int v = total.poll();
+            TreeSet<Integer> adjacent = getNeighbors(v);
+            if (adjacent.contains(end)) {
+                return true;
+            }
+            if (!opened.contains(v)) {
+                opened.add(v);
+                total.addAll(adjacent);
+            }
+        }
+        return false;
     }
 
     /* Returns a randomly generated graph with VERTICES number of vertices and
@@ -223,5 +263,12 @@ public class Graph {
             System.exit(1);
             return null;
         }
+    }
+
+    public static void main(String[] args) {
+        Graph minTree = loadFromText("C:\\Users\\raffi\\OneDrive\\Desktop\\cs61bl\\su22-s428\\skeleton-su22\\lab24\\inputs\\graphTestNormal.in");
+        System.out.println(minTree.getAllEdges());
+        System.out.println(minTree.prims(1).getAllEdges());
+        System.out.println(minTree.kruskals().getAllEdges());
     }
 }
