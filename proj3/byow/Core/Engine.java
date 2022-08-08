@@ -1,10 +1,13 @@
 package byow.Core;
 
+import byow.InputDemo.InputSource;
+import byow.InputDemo.KeyboardInputSource;
 import byow.TileEngine.TERenderer;
 import byow.TileEngine.TETile;
 import edu.princeton.cs.algs4.StdDraw;
 
 import java.awt.*;
+import java.io.*;
 
 public class Engine {
     TERenderer ter = new TERenderer();
@@ -12,12 +15,22 @@ public class Engine {
     public static final int WIDTH = 100;
     public static final int HEIGHT = 60;
 
+    public boolean play = false;
+
     /**
      * Method used for exploring a fresh world. This method should handle all inputs,
      * including inputs from the main menu.
      */
     public void interactWithKeyboard() {
         titleScreen();
+        while (true) {
+            InputSource keyboard = new KeyboardInputSource();
+
+            while (!play) {
+                char each = Character.toUpperCase(keyboard.getNextKey());
+                if ()
+            }
+        }
     }
 
     public void titleScreen() {
@@ -25,10 +38,10 @@ public class Engine {
         ter.initialize(WIDTH, HEIGHT);
         StdDraw.clear(Color.black);
         StdDraw.setPenColor(Color.white);
-        Font title = new Font("Monaco", Font.BOLD, 64);
+        Font title = new Font("Arial", Font.BOLD, 64);
         StdDraw.setFont(title);
-        StdDraw.text(50,45, "CS61B: Dungeon Game");
-        Font context = new Font("Monaco", Font.BOLD, 24);
+        StdDraw.text(50,45, "CS61B: The Game");
+        Font context = new Font("Arial", Font.BOLD, 24);
         StdDraw.setFont(context);
         StdDraw.text(50, 40, "New Game (N)");
         StdDraw.text(50, 38, "Load Game (L)");
@@ -76,5 +89,27 @@ public class Engine {
         }
         TETile[][] finalWorldFrame = a.getWorld();
         return finalWorldFrame;
+    }
+
+    public void load() {
+        File load = new File("./save.txt");
+        String inputs = null;
+        if (load.exists()) {
+            try {
+                FileInputStream fileInputStream = new FileInputStream(load);
+                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+                inputs = objectInputStream.readObject().toString();
+            } catch (FileNotFoundException exception) {
+                System.out.println("Error: File Not Found");
+                return;
+            } catch (IOException exception) {
+                System.out.println("IOException occurred when loading file");
+                return;
+            } catch (ClassNotFoundException exception) {
+                System.out.println("Error occurred finding class while loading save file");
+                return;
+            }
+            interactWithInputString(inputs);
+        }
     }
 }
