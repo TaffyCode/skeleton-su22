@@ -9,7 +9,6 @@ import edu.princeton.cs.algs4.StdDraw;
 
 import java.awt.*;
 import java.io.*;
-import java.util.concurrent.TimeUnit;
 
 public class Engine {
     TERenderer ter = new TERenderer();
