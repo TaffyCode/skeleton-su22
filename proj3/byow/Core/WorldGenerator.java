@@ -12,14 +12,24 @@ public class WorldGenerator {
 
     private final Random RANDOM;
 
+    private int[] playerLocation = new int[2];
+
+    private TETile playerCurrent;
+
+
+    private TERenderer ter;
+
     private List<Room> roomsList = new ArrayList<Room>();
 
     private TETile[][] world = new TETile[WIDTH][HEIGHT];
     public WorldGenerator(Long seed) {
-        TERenderer ter = new TERenderer();
+        ter = new TERenderer();
         ter.initialize(WIDTH, HEIGHT);
         RANDOM = new Random(seed);
         generate();
+    }
+
+    public void draw() {
         ter.renderFrame(world);
     }
 
@@ -33,7 +43,7 @@ public class WorldGenerator {
         }
         rooms();
         hallways();
-        ter.renderFrame(world);
+        spawnCharacter();
     }
 
     public void rooms() {
@@ -253,6 +263,48 @@ public class WorldGenerator {
             }
         }
         return closestSoFar;
+    }
+
+    public void spawnCharacter() {
+        while (true) {
+            int x = RandomUtils.uniform(RANDOM, 0, 90);
+            int y = RandomUtils.uniform(RANDOM, 0, 50);
+            if (world[x][y] == Tileset.FLOOR) {
+                playerCurrent = world[x][y];
+                world[x][y] = Tileset.AVATAR;
+                playerLocation[0] = x;
+                playerLocation[1] = y;
+                break;
+            }
+        }
+    }
+
+    public void move(char direction) {
+        if (direction == 'W') {
+            if (world[playerLocation[0]][playerLocation[1] + 1] != Tileset.WALL) {
+                world[playerLocation[0]][playerLocation[1]] = playerCurrent;
+                world[playerLocation[0]][playerLocation[1] + 1] = Tileset.AVATAR;
+                playerLocation[1] += 1;
+            }
+        } else if (direction == 'A') {
+            if (world[playerLocation[0] - 1][playerLocation[1]] != Tileset.WALL) {
+                world[playerLocation[0]][playerLocation[1]] = playerCurrent;
+                world[playerLocation[0] - 1][playerLocation[1]] = Tileset.AVATAR;
+                playerLocation[0] -= 1;
+            }
+        } else if (direction == 'S') {
+            if (world[playerLocation[0]][playerLocation[1] - 1] != Tileset.WALL) {
+                world[playerLocation[0]][playerLocation[1]] = playerCurrent;
+                world[playerLocation[0]][playerLocation[1] - 1] = Tileset.AVATAR;
+                playerLocation[1] -=1;
+            }
+        } else if (direction == 'D') {
+            if (world[playerLocation[0] + 1][playerLocation[1]] != Tileset.WALL) {
+                world[playerLocation[0]][playerLocation[1]] = playerCurrent;
+                world[playerLocation[0] + 1][playerLocation[1]] = Tileset.AVATAR;
+                playerLocation[0] += 1;
+            }
+        }
     }
 
     public TETile[][] getWorld() {

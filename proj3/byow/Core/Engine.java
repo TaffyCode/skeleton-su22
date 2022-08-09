@@ -2,6 +2,7 @@ package byow.Core;
 
 import byow.InputDemo.InputSource;
 import byow.InputDemo.KeyboardInputSource;
+import byow.InputDemo.StringInputDevice;
 import byow.TileEngine.TERenderer;
 import byow.TileEngine.TETile;
 import edu.princeton.cs.algs4.StdDraw;
@@ -15,7 +16,16 @@ public class Engine {
     public static final int WIDTH = 100;
     public static final int HEIGHT = 60;
 
+    private long seed;
+
+    private WorldGenerator world;
+
     public boolean play = false;
+    public boolean openScreen = true;
+    public boolean seedScreen = false;
+
+    public StringBuilder totalInputs;
+    public StringBuilder seedInputs;
 
     /**
      * Method used for exploring a fresh world. This method should handle all inputs,
@@ -28,8 +38,100 @@ public class Engine {
 
             while (!play) {
                 char each = Character.toUpperCase(keyboard.getNextKey());
-                if ()
+                if (openScreen && each == 'L') {
+                    load();
+                } else if (openScreen && each == 'N') {
+                    openScreen = false;
+                    seedScreen = true;
+                    totalInputs.append(each);
+                    int midWidth = WIDTH / 2;
+                    int midHeight = HEIGHT / 2;
+
+                    String input = totalInputs.toString();
+                    input = input.substring(input.indexOf('N') + 1);
+
+                    StdDraw.clear(Color.black);
+                    StdDraw.setPenColor(Color.white);
+                    StdDraw.setFont(new Font("Arial", Font.BOLD, 64));
+                    StdDraw.text(midWidth, HEIGHT - 10, "NEW GAME");
+                    StdDraw.setFont(new Font("Arial", Font.BOLD, 24));
+                    StdDraw.text(midWidth, midHeight, "Enter any number and then press \"S\".");
+                    StdDraw.setPenColor(Color.yellow);
+                    StdDraw.text(midWidth, midHeight - 2, input);
+                    StdDraw.show();
+                } else if (seedScreen && Character.isDigit(each)) {
+                    seedInputs.append(each);
+                    totalInputs.append(each);
+
+                    int midWidth = WIDTH / 2;
+                    int midHeight = HEIGHT / 2;
+
+                    String input = totalInputs.toString();
+                    input = input.substring(input.indexOf('N') + 1);
+
+                    StdDraw.clear(Color.black);
+                    StdDraw.setPenColor(Color.white);
+                    StdDraw.setFont(new Font("Arial", Font.BOLD, 64));
+                    StdDraw.text(midWidth, HEIGHT - 10, "NEW GAME");
+                    StdDraw.setFont(new Font("Arial", Font.BOLD, 24));
+                    StdDraw.text(midWidth, midHeight, "Enter any number and then press \"S\".");
+                    StdDraw.setPenColor(Color.yellow);
+                    StdDraw.text(midWidth, midHeight - 2, input);
+                    StdDraw.show();
+                } else if (seedScreen && each == 'S') {
+                    totalInputs.append('S');
+                    if (seedInputs.length() > 18) {
+                        seed = Long.parseLong(seedInputs.substring(0, 18));
+                    } else {
+                        seed = Long.parseLong(seedInputs.toString());
+                    }
+                    play = true;
+                    seedScreen = false;
+                    world = new WorldGenerator(seed);
+                } else if (each == 'Q') {
+                    System.exit(0);
+                }
             }
+            render();
+            if (play) {
+                moves(keyboard, false);
+            }
+        }
+    }
+
+    public void render() {
+        TETile[][] frame = world.getWorld();
+        ter.renderFrame(frame);
+        StdDraw.show();
+    }
+
+    public void moves(InputSource keyboard, boolean render) {
+        char each = Character.toUpperCase(keyboard.getNextKey());
+        switch (each) {
+            case 'W':
+                totalInputs.append('W');
+                world.move('W');
+                break;
+            case 'A':
+                totalInputs.append('A');
+                world.move('A');
+                break;
+            case 'S':
+                totalInputs.append('S');
+                world.move('S');
+                break;
+            case 'D':
+                totalInputs.append('D');
+                world.move('D');
+                break;
+            case ':':
+                save();
+                break;
+            case 'Q':
+                System.exit(0);
+        }
+        if (render) {
+            world.draw();
         }
     }
 
@@ -47,6 +149,8 @@ public class Engine {
         StdDraw.text(50, 38, "Load Game (L)");
         StdDraw.text(50, 36, "Quit (Q)");
         StdDraw.show();
+        totalInputs = new StringBuilder("");
+        seedInputs = new StringBuilder("");
     }
 
 
@@ -73,23 +177,96 @@ public class Engine {
      * @return the 2D TETile[][] representing the state of the world
      */
     public TETile[][] interactWithInputString(String input) {
-        WorldGenerator a;
-        if (input.charAt(0) == 'N' || input.charAt(0) == 'n') {
-            String last = input.substring(input.length() - 1);
-            char lastCharacter = last.charAt(0);
-            if (lastCharacter == 'S' || lastCharacter == 's') {
-                String seed = input.substring(1, input.length() - 1);
-                Long newSeed = Long.parseLong(seed);
-                a = new WorldGenerator(newSeed);
-            } else {
-                throw new Error("Seed didn't end with 'S' or 's'");
+        totalInputs = new StringBuilder("");
+        seedInputs = new StringBuilder("");
+        seed = -999;
+        world = null;
+        InputSource keyboard = new StringInputDevice(input);
+
+        System.out.println(input);
+
+        while (!play && keyboard.possibleNextInput()) {
+            char each = Character.toUpperCase(keyboard.getNextKey());
+            if (openScreen && each == 'L') {
+                load();
+            } else if (openScreen && each == 'N') {
+                openScreen = false;
+                seedScreen = true;
+                totalInputs.append(each);
+                int midWidth = WIDTH / 2;
+                int midHeight = HEIGHT / 2;
+
+                String inputs = totalInputs.toString();
+                inputs = inputs.substring(inputs.indexOf('N') + 1);
+
+                StdDraw.clear(Color.black);
+                StdDraw.setPenColor(Color.white);
+                StdDraw.setFont(new Font("Arial", Font.BOLD, 64));
+                StdDraw.text(midWidth, HEIGHT - 10, "NEW GAME");
+                StdDraw.setFont(new Font("Arial", Font.BOLD, 24));
+                StdDraw.text(midWidth, midHeight, "Enter any number and then press \"S\".");
+                StdDraw.setPenColor(Color.yellow);
+                StdDraw.text(midWidth, midHeight - 2, inputs);
+                StdDraw.show();
+            } else if (seedScreen && Character.isDigit(each)) {
+                seedInputs.append(each);
+                totalInputs.append(each);
+
+                int midWidth = WIDTH / 2;
+                int midHeight = HEIGHT / 2;
+
+                String inputs = totalInputs.toString();
+                inputs = inputs.substring(inputs.indexOf('N') + 1);
+
+                StdDraw.clear(Color.black);
+                StdDraw.setPenColor(Color.white);
+                StdDraw.setFont(new Font("Arial", Font.BOLD, 64));
+                StdDraw.text(midWidth, HEIGHT - 10, "NEW GAME");
+                StdDraw.setFont(new Font("Arial", Font.BOLD, 24));
+                StdDraw.text(midWidth, midHeight, "Enter any number and then press \"S\".");
+                StdDraw.setPenColor(Color.yellow);
+                StdDraw.text(midWidth, midHeight - 2, inputs);
+                StdDraw.show();
+            } else if (seedScreen && each == 'S') {
+                totalInputs.append('S');
+                if (seedInputs.length() > 18) {
+                    seed = Long.parseLong(seedInputs.substring(0, 18));
+                } else {
+                    seed = Long.parseLong(seedInputs.toString());
+                }
+                play = true;
+                seedScreen = false;
+                world = new WorldGenerator(seed);
+            } else if (each == 'Q') {
+                System.exit(0);
             }
-        } else {
-            throw new Error("Seed didn't start with 'N' or 'n'");
         }
-        TETile[][] finalWorldFrame = a.getWorld();
-        return finalWorldFrame;
+        while (play && keyboard.possibleNextInput()) {
+            moves(keyboard, false);
+        }
+        if (world != null) {
+            return world.getWorld();
+        } else {
+            return null;
+        }
     }
+
+    public void save() {
+        File save = new File("./save.txt");
+        try {
+            if (!save.exists()) {
+                save.createNewFile();
+            }
+            FileOutputStream fileOutputStream = new FileOutputStream(save);
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+            objectOutputStream.writeObject(totalInputs.toString());
+        } catch (FileNotFoundException exception) {
+            System.out.println("File not found");
+        } catch (IOException exception) {
+            System.out.println("IOException occurred while saving");
+        }
+    }
+
 
     public void load() {
         File load = new File("./save.txt");
