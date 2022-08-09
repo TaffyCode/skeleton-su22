@@ -55,7 +55,7 @@ public class Engine {
                     StdDraw.setFont(new Font("Arial", Font.BOLD, 64));
                     StdDraw.text(midWidth, HEIGHT - 10, "NEW GAME");
                     StdDraw.setFont(new Font("Arial", Font.BOLD, 24));
-                    StdDraw.text(midWidth, midHeight, "Enter any number and then press \"S\".");
+                    StdDraw.text(midWidth, midHeight, "Enter any number for a seed and then press \"S\".");
                     StdDraw.setPenColor(Color.yellow);
                     StdDraw.text(midWidth, midHeight - 2, input);
                     StdDraw.show();
@@ -74,7 +74,7 @@ public class Engine {
                     StdDraw.setFont(new Font("Arial", Font.BOLD, 64));
                     StdDraw.text(midWidth, HEIGHT - 10, "NEW GAME");
                     StdDraw.setFont(new Font("Arial", Font.BOLD, 24));
-                    StdDraw.text(midWidth, midHeight, "Enter any number and then press \"S\".");
+                    StdDraw.text(midWidth, midHeight, "Enter any number for a seed and then press \"S\".");
                     StdDraw.setPenColor(Color.yellow);
                     StdDraw.text(midWidth, midHeight - 2, input);
                     StdDraw.show();
@@ -204,7 +204,7 @@ public class Engine {
                 StdDraw.setFont(new Font("Arial", Font.BOLD, 64));
                 StdDraw.text(midWidth, HEIGHT - 10, "NEW GAME");
                 StdDraw.setFont(new Font("Arial", Font.BOLD, 24));
-                StdDraw.text(midWidth, midHeight, "Enter any number and then press \"S\".");
+                StdDraw.text(midWidth, midHeight, "Enter any number for a seed and then press \"S\".");
                 StdDraw.setPenColor(Color.yellow);
                 StdDraw.text(midWidth, midHeight - 2, inputs);
                 StdDraw.show();
@@ -223,7 +223,7 @@ public class Engine {
                 StdDraw.setFont(new Font("Arial", Font.BOLD, 64));
                 StdDraw.text(midWidth, HEIGHT - 10, "NEW GAME");
                 StdDraw.setFont(new Font("Arial", Font.BOLD, 24));
-                StdDraw.text(midWidth, midHeight, "Enter any number and then press \"S\".");
+                StdDraw.text(midWidth, midHeight, "Enter any number for a seed and then press \"S\".");
                 StdDraw.setPenColor(Color.yellow);
                 StdDraw.text(midWidth, midHeight - 2, inputs);
                 StdDraw.show();
