@@ -9,6 +9,7 @@ import edu.princeton.cs.algs4.StdDraw;
 
 import java.awt.*;
 import java.io.*;
+import java.util.concurrent.TimeUnit;
 
 public class Engine {
     TERenderer ter = new TERenderer();
@@ -31,7 +32,7 @@ public class Engine {
      * Method used for exploring a fresh world. This method should handle all inputs,
      * including inputs from the main menu.
      */
-    public void interactWithKeyboard() {
+    public void interactWithKeyboard() throws InterruptedException {
         titleScreen();
         while (true) {
             InputSource keyboard = new KeyboardInputSource();
@@ -90,6 +91,8 @@ public class Engine {
                     world = new WorldGenerator(seed);
                 } else if (each == 'Q') {
                     System.exit(0);
+                } else if (each == 'R') {
+                    replay();
                 }
             }
             render();
@@ -105,7 +108,7 @@ public class Engine {
         StdDraw.show();
     }
 
-    public void moves(InputSource keyboard, boolean render) {
+    public void moves(InputSource keyboard, boolean render) throws InterruptedException {
         char each = Character.toUpperCase(keyboard.getNextKey());
         switch (each) {
             case 'W' -> {
@@ -133,6 +136,7 @@ public class Engine {
         }
         if (render) {
             world.draw();
+            TimeUnit.MILLISECONDS.sleep(200);
         }
     }
 
@@ -147,7 +151,8 @@ public class Engine {
         StdDraw.setFont(context);
         StdDraw.text(50, 40, "New Game (N)");
         StdDraw.text(50, 38, "Load Game (L)");
-        StdDraw.text(50, 36, "Quit (Q)");
+        StdDraw.text(50, 36, "Replay Save (R)");
+        StdDraw.text(50, 34, "Quit (Q)");
         StdDraw.show();
         totalInputs = new StringBuilder("");
         seedInputs = new StringBuilder("");
@@ -176,7 +181,7 @@ public class Engine {
      * @param input the input string to feed to your program
      * @return the 2D TETile[][] representing the state of the world
      */
-    public TETile[][] interactWithInputString(String input) {
+    public TETile[][] interactWithInputString(String input) throws InterruptedException {
         totalInputs = new StringBuilder("");
         seedInputs = new StringBuilder("");
         seed = -999;
@@ -237,7 +242,7 @@ public class Engine {
     }
 
 
-    public void load() {
+    public void load() throws InterruptedException {
         File load = new File("./save.txt");
         String inputs = null;
         if (load.exists()) {
@@ -256,6 +261,72 @@ public class Engine {
                 return;
             }
             interactWithInputString(inputs);
+        }
+    }
+
+    public void replay() throws InterruptedException {
+        File load = new File("./save.txt");
+        String inputs = null;
+        if (load.exists()) {
+            try {
+                FileInputStream fileInputStream = new FileInputStream(load);
+                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+                inputs = objectInputStream.readObject().toString();
+            } catch (FileNotFoundException exception) {
+                System.out.println("Error: File Not Found");
+                return;
+            } catch (IOException exception) {
+                System.out.println("IOException occurred when loading file");
+                return;
+            } catch (ClassNotFoundException exception) {
+                System.out.println("Error occurred finding class while loading save file");
+                return;
+            }
+            replayHelper(inputs);
+        }
+    }
+
+    public TETile[][] replayHelper(String input) throws InterruptedException {
+        totalInputs = new StringBuilder("");
+        seedInputs = new StringBuilder("");
+        seed = -999;
+        world = null;
+        InputSource keyboard = new StringInputDevice(input);
+
+        while (!play && keyboard.possibleNextInput()) {
+            char each = Character.toUpperCase(keyboard.getNextKey());
+            if (openScreen && each == 'L') {
+                load();
+            } else if (openScreen && each == 'N') {
+                openScreen = false;
+                seedScreen = true;
+                totalInputs.append(each);
+
+            } else if (seedScreen && Character.isDigit(each)) {
+                seedInputs.append(each);
+                totalInputs.append(each);
+
+            } else if (seedScreen && each == 'S') {
+                totalInputs.append('S');
+                if (seedInputs.length() > 18) {
+                    seed = Long.parseLong(seedInputs.substring(0, 18));
+                } else {
+                    seed = Long.parseLong(seedInputs.toString());
+                }
+                play = true;
+                seedScreen = false;
+                world = new WorldGenerator(seed);
+            } else if (each == 'Q') {
+                return world.getWorld();
+            }
+        }
+        while (play && keyboard.possibleNextInput()) {
+            moves(keyboard, true);
+        }
+        if (world != null) {
+            return world.getWorld();
+        } else {
+            return null;
         }
     }
 }
