@@ -229,7 +229,25 @@ public class Engine {
         while (!play && keyboard.possibleNextInput()) {
             char each = Character.toUpperCase(keyboard.getNextKey());
             if (openScreen && each == 'L') {
-                load();
+                File load = new File("./save.txt");
+                String inputs = null;
+                if (load.exists()) {
+                    try {
+                        FileInputStream fileInputStream = new FileInputStream(load);
+                        ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+                        inputs = objectInputStream.readObject().toString();
+                    } catch (FileNotFoundException exception) {
+                        System.out.println("Error: File Not Found");
+                        return null;
+                    } catch (IOException exception) {
+                        System.out.println("IOException occurred when loading file");
+                        return null;
+                    } catch (ClassNotFoundException exception) {
+                        System.out.println("Error occurred finding class while loading save file");
+                        return null;
+                    }
+                    interactWithInputStringAG(inputs);
+                }
             } else if (openScreen && each == 'N') {
                 openScreen = false;
                 seedScreen = true;
