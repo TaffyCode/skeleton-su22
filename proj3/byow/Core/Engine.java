@@ -193,40 +193,11 @@ public class Engine {
                 openScreen = false;
                 seedScreen = true;
                 totalInputs.append(each);
-                int midWidth = WIDTH / 2;
-                int midHeight = HEIGHT / 2;
 
-                String inputs = totalInputs.toString();
-                inputs = inputs.substring(inputs.indexOf('N') + 1);
-
-                StdDraw.clear(Color.black);
-                StdDraw.setPenColor(Color.white);
-                StdDraw.setFont(new Font("Arial", Font.BOLD, 64));
-                StdDraw.text(midWidth, HEIGHT - 10, "NEW GAME");
-                StdDraw.setFont(new Font("Arial", Font.BOLD, 24));
-                StdDraw.text(midWidth, midHeight, "Enter any number for a seed and then press \"S\".");
-                StdDraw.setPenColor(Color.yellow);
-                StdDraw.text(midWidth, midHeight - 2, inputs);
-                StdDraw.show();
             } else if (seedScreen && Character.isDigit(each)) {
                 seedInputs.append(each);
                 totalInputs.append(each);
 
-                int midWidth = WIDTH / 2;
-                int midHeight = HEIGHT / 2;
-
-                String inputs = totalInputs.toString();
-                inputs = inputs.substring(inputs.indexOf('N') + 1);
-
-                StdDraw.clear(Color.black);
-                StdDraw.setPenColor(Color.white);
-                StdDraw.setFont(new Font("Arial", Font.BOLD, 64));
-                StdDraw.text(midWidth, HEIGHT - 10, "NEW GAME");
-                StdDraw.setFont(new Font("Arial", Font.BOLD, 24));
-                StdDraw.text(midWidth, midHeight, "Enter any number for a seed and then press \"S\".");
-                StdDraw.setPenColor(Color.yellow);
-                StdDraw.text(midWidth, midHeight - 2, inputs);
-                StdDraw.show();
             } else if (seedScreen && each == 'S') {
                 totalInputs.append('S');
                 if (seedInputs.length() > 18) {
