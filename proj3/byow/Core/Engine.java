@@ -32,7 +32,7 @@ public class Engine {
      * Method used for exploring a fresh world. This method should handle all inputs,
      * including inputs from the main menu.
      */
-    public void interactWithKeyboard() throws InterruptedException {
+    public void interactWithKeyboard() {
         titleScreen();
         while (true) {
             InputSource keyboard = new KeyboardInputSource();
@@ -108,7 +108,7 @@ public class Engine {
         StdDraw.show();
     }
 
-    public void moves(InputSource keyboard, boolean render) throws InterruptedException {
+    public void moves(InputSource keyboard, boolean render) {
         char each = Character.toUpperCase(keyboard.getNextKey());
         switch (each) {
             case 'W' -> {
@@ -136,7 +136,11 @@ public class Engine {
         }
         if (render) {
             world.draw();
-            TimeUnit.MILLISECONDS.sleep(200);
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException exception) {
+                System.out.println("Interrupted Exception Occurred.");
+            }
         }
     }
 
@@ -181,7 +185,7 @@ public class Engine {
      * @param input the input string to feed to your program
      * @return the 2D TETile[][] representing the state of the world
      */
-    public TETile[][] interactWithInputString(String input) throws InterruptedException {
+    public TETile[][] interactWithInputString(String input) {
         totalInputs = new StringBuilder("");
         seedInputs = new StringBuilder("");
         seed = -999;
@@ -242,7 +246,7 @@ public class Engine {
     }
 
 
-    public void load() throws InterruptedException {
+    public void load() {
         File load = new File("./save.txt");
         String inputs = null;
         if (load.exists()) {
@@ -264,7 +268,7 @@ public class Engine {
         }
     }
 
-    public void replay() throws InterruptedException {
+    public void replay() {
         File load = new File("./save.txt");
         String inputs = null;
         if (load.exists()) {
@@ -286,7 +290,7 @@ public class Engine {
         }
     }
 
-    public TETile[][] replayHelper(String input) throws InterruptedException {
+    public TETile[][] replayHelper(String input) {
         totalInputs = new StringBuilder("");
         seedInputs = new StringBuilder("");
         seed = -999;
