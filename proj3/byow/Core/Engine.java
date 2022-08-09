@@ -125,7 +125,9 @@ public class Engine {
                 world.move('D');
             }
             case ':' -> save();
-            case 'Q' -> System.exit(0);
+            case 'Q' -> {
+                return;
+            }
             default -> {
             }
         }
@@ -205,7 +207,7 @@ public class Engine {
                 seedScreen = false;
                 world = new WorldGenerator(seed);
             } else if (each == 'Q') {
-                System.exit(0);
+                return world.getWorld();
             }
         }
         while (play && keyboard.possibleNextInput()) {
