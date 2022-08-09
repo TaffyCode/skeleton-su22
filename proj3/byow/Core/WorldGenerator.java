@@ -45,7 +45,7 @@ public class WorldGenerator {
     }
 
     public void rooms() {
-        int roomCount = RandomUtils.uniform(RANDOM, 20, 30);
+        int roomCount = RandomUtils.uniform(RANDOM, 20, 25);
         while (roomCount != 0) {
             int xCoord = RandomUtils.uniform(RANDOM, 0, WIDTH - 20);
             int yCoord = RandomUtils.uniform(RANDOM, 0, HEIGHT - 20);
@@ -294,7 +294,7 @@ public class WorldGenerator {
             if (world[playerLocation[0]][playerLocation[1] - 1] != Tileset.WALL) {
                 world[playerLocation[0]][playerLocation[1]] = playerCurrent;
                 world[playerLocation[0]][playerLocation[1] - 1] = Tileset.AVATAR;
-                playerLocation[1] -=1;
+                playerLocation[1] -= 1;
             }
         } else if (direction == 'D') {
             if (world[playerLocation[0] + 1][playerLocation[1]] != Tileset.WALL) {

@@ -20,12 +20,12 @@ public class Engine {
 
     private WorldGenerator world;
 
-    public boolean play = false;
-    public boolean openScreen = true;
-    public boolean seedScreen = false;
+    private boolean play = false;
+    private boolean openScreen = true;
+    private boolean seedScreen = false;
 
-    public StringBuilder totalInputs;
-    public StringBuilder seedInputs;
+    private StringBuilder totalInputs;
+    private StringBuilder seedInputs;
 
     /**
      * Method used for exploring a fresh world. This method should handle all inputs,
@@ -55,7 +55,7 @@ public class Engine {
                     StdDraw.setFont(new Font("Arial", Font.BOLD, 64));
                     StdDraw.text(midWidth, HEIGHT - 10, "NEW GAME");
                     StdDraw.setFont(new Font("Arial", Font.BOLD, 24));
-                    StdDraw.text(midWidth, midHeight, "Enter any number for a seed and then press \"S\".");
+                    StdDraw.text(midWidth, midHeight, "Enter any number, then press \"S\".");
                     StdDraw.setPenColor(Color.yellow);
                     StdDraw.text(midWidth, midHeight - 2, input);
                     StdDraw.show();
@@ -74,7 +74,7 @@ public class Engine {
                     StdDraw.setFont(new Font("Arial", Font.BOLD, 64));
                     StdDraw.text(midWidth, HEIGHT - 10, "NEW GAME");
                     StdDraw.setFont(new Font("Arial", Font.BOLD, 24));
-                    StdDraw.text(midWidth, midHeight, "Enter any number for a seed and then press \"S\".");
+                    StdDraw.text(midWidth, midHeight, "Enter any number, then press \"S\".");
                     StdDraw.setPenColor(Color.yellow);
                     StdDraw.text(midWidth, midHeight - 2, input);
                     StdDraw.show();
@@ -108,27 +108,26 @@ public class Engine {
     public void moves(InputSource keyboard, boolean render) {
         char each = Character.toUpperCase(keyboard.getNextKey());
         switch (each) {
-            case 'W':
+            case 'W' -> {
                 totalInputs.append('W');
                 world.move('W');
-                break;
-            case 'A':
+            }
+            case 'A' -> {
                 totalInputs.append('A');
                 world.move('A');
-                break;
-            case 'S':
+            }
+            case 'S' -> {
                 totalInputs.append('S');
                 world.move('S');
-                break;
-            case 'D':
+            }
+            case 'D' -> {
                 totalInputs.append('D');
                 world.move('D');
-                break;
-            case ':':
-                save();
-                break;
-            case 'Q':
-                System.exit(0);
+            }
+            case ':' -> save();
+            case 'Q' -> System.exit(0);
+            default -> {
+            }
         }
         if (render) {
             world.draw();
@@ -141,7 +140,7 @@ public class Engine {
         StdDraw.setPenColor(Color.white);
         Font title = new Font("Arial", Font.BOLD, 64);
         StdDraw.setFont(title);
-        StdDraw.text(50,45, "CS61B: The Game");
+        StdDraw.text(50, 45, "CS61B: The Game");
         Font context = new Font("Arial", Font.BOLD, 24);
         StdDraw.setFont(context);
         StdDraw.text(50, 40, "New Game (N)");
