@@ -29,13 +29,18 @@ public class WorldGenerator {
         generate();
     }
 
+    public WorldGenerator(Long seed, boolean helper) {
+        ter = new TERenderer();
+        RANDOM = new Random(seed);
+        generate();
+    }
+
     public void draw() {
         ter.renderFrame(world);
     }
 
     public void generate() {
-        TERenderer ter = new TERenderer();
-        ter.initialize(WIDTH, HEIGHT);
+
         for (int x = 0; x < WIDTH; x += 1) {
             for (int y = 0; y < HEIGHT; y += 1) {
                 world[x][y] = Tileset.NOTHING;

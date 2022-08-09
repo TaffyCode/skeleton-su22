@@ -136,7 +136,6 @@ public class Engine {
     }
 
     public void titleScreen() {
-        WorldGenerator world = new WorldGenerator(8451L);
         ter.initialize(WIDTH, HEIGHT);
         StdDraw.clear(Color.black);
         StdDraw.setPenColor(Color.white);
@@ -183,8 +182,6 @@ public class Engine {
         world = null;
         InputSource keyboard = new StringInputDevice(input);
 
-        System.out.println(input);
-
         while (!play && keyboard.possibleNextInput()) {
             char each = Character.toUpperCase(keyboard.getNextKey());
             if (openScreen && each == 'L') {
@@ -208,6 +205,50 @@ public class Engine {
                 play = true;
                 seedScreen = false;
                 world = new WorldGenerator(seed);
+            } else if (each == 'Q') {
+                System.exit(0);
+            }
+        }
+        while (play && keyboard.possibleNextInput()) {
+            moves(keyboard, false);
+        }
+        if (world != null) {
+            return world.getWorld();
+        } else {
+            return null;
+        }
+    }
+
+    public TETile[][] interactWithInputStringAG(String input) {
+        totalInputs = new StringBuilder("");
+        seedInputs = new StringBuilder("");
+        seed = -999;
+        world = null;
+        InputSource keyboard = new StringInputDevice(input);
+
+        while (!play && keyboard.possibleNextInput()) {
+            char each = Character.toUpperCase(keyboard.getNextKey());
+            if (openScreen && each == 'L') {
+                load();
+            } else if (openScreen && each == 'N') {
+                openScreen = false;
+                seedScreen = true;
+                totalInputs.append(each);
+
+            } else if (seedScreen && Character.isDigit(each)) {
+                seedInputs.append(each);
+                totalInputs.append(each);
+
+            } else if (seedScreen && each == 'S') {
+                totalInputs.append('S');
+                if (seedInputs.length() > 18) {
+                    seed = Long.parseLong(seedInputs.substring(0, 18));
+                } else {
+                    seed = Long.parseLong(seedInputs.toString());
+                }
+                play = true;
+                seedScreen = false;
+                world = new WorldGenerator(seed, false);
             } else if (each == 'Q') {
                 System.exit(0);
             }
