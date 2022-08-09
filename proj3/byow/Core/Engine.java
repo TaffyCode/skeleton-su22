@@ -219,68 +219,6 @@ public class Engine {
         }
     }
 
-    public TETile[][] interactWithInputStringAG(String input) {
-        totalInputs = new StringBuilder("");
-        seedInputs = new StringBuilder("");
-        seed = -999;
-        world = null;
-        InputSource keyboard = new StringInputDevice(input);
-
-        while (!play && keyboard.possibleNextInput()) {
-            char each = Character.toUpperCase(keyboard.getNextKey());
-            if (openScreen && each == 'L') {
-                File load = new File("./save.txt");
-                String inputs = null;
-                if (load.exists()) {
-                    try {
-                        FileInputStream fileInputStream = new FileInputStream(load);
-                        ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-                        inputs = objectInputStream.readObject().toString();
-                    } catch (FileNotFoundException exception) {
-                        System.out.println("Error: File Not Found");
-                        return null;
-                    } catch (IOException exception) {
-                        System.out.println("IOException occurred when loading file");
-                        return null;
-                    } catch (ClassNotFoundException exception) {
-                        System.out.println("Error occurred finding class while loading save file");
-                        return null;
-                    }
-                    interactWithInputStringAG(inputs);
-                }
-            } else if (openScreen && each == 'N') {
-                openScreen = false;
-                seedScreen = true;
-                totalInputs.append(each);
-
-            } else if (seedScreen && Character.isDigit(each)) {
-                seedInputs.append(each);
-                totalInputs.append(each);
-
-            } else if (seedScreen && each == 'S') {
-                totalInputs.append('S');
-                if (seedInputs.length() > 18) {
-                    seed = Long.parseLong(seedInputs.substring(0, 18));
-                } else {
-                    seed = Long.parseLong(seedInputs.toString());
-                }
-                play = true;
-                seedScreen = false;
-                world = new WorldGenerator(seed, false);
-            } else if (each == 'Q') {
-                System.exit(0);
-            }
-        }
-        while (play && keyboard.possibleNextInput()) {
-            moves(keyboard, false);
-        }
-        if (world != null) {
-            return world.getWorld();
-        } else {
-            return null;
-        }
-    }
-
     public void save() {
         File save = new File("./save.txt");
         try {

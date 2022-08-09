@@ -24,13 +24,6 @@ public class WorldGenerator {
     private TETile[][] world = new TETile[WIDTH][HEIGHT];
     public WorldGenerator(Long seed) {
         ter = new TERenderer();
-        ter.initialize(WIDTH, HEIGHT);
-        RANDOM = new Random(seed);
-        generate();
-    }
-
-    public WorldGenerator(Long seed, boolean helper) {
-        ter = new TERenderer();
         RANDOM = new Random(seed);
         generate();
     }
