@@ -125,7 +125,6 @@ public class Engine {
                         } else  {
                             mouseHover = world.getDark()[x][y];
                         }
-                        System.out.println(mouseHover);
                         if (mouseHover == Tileset.WALL) {
                             tip = "A stone brick wall.";
                         } else if (mouseHover == Tileset.FLOOR) {
