@@ -308,4 +308,22 @@ public class WorldGenerator {
     public TETile[][] getWorld() {
         return world;
     }
+
+    public TETile[][] getDark() {
+        TETile[][] dark = new TETile[WIDTH][HEIGHT];
+        for (int x = 0; x < WIDTH; x++) {
+            for (int y = 0; y < HEIGHT; y++) {
+                if (x > playerLocation[0] - 8 && x < playerLocation[0] + 8) {
+                    if (y > playerLocation[1] - 8 && y < playerLocation[1] + 8) {
+                        dark[x][y] = world[x][y];
+                    } else {
+                        dark[x][y] = Tileset.NOTHING;
+                    }
+                } else {
+                    dark[x][y] = Tileset.NOTHING;
+                }
+            }
+        }
+        return dark;
+    }
 }

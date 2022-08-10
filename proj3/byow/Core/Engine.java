@@ -5,10 +5,13 @@ import byow.InputDemo.KeyboardInputSource;
 import byow.InputDemo.StringInputDevice;
 import byow.TileEngine.TERenderer;
 import byow.TileEngine.TETile;
+import byow.TileEngine.Tileset;
 import edu.princeton.cs.algs4.StdDraw;
 
 import java.awt.*;
 import java.io.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Engine {
     TERenderer ter = new TERenderer();
@@ -24,8 +27,15 @@ public class Engine {
     private boolean openScreen = true;
     private boolean seedScreen = false;
 
+    private boolean off = false;
+
     private StringBuilder totalInputs;
     private StringBuilder seedInputs;
+
+    private String tip = "Tip: Click on a tile!";
+
+    private boolean dark = false;
+    private boolean saved = false;
 
     /**
      * Method used for exploring a fresh world. This method should handle all inputs,
@@ -52,9 +62,9 @@ public class Engine {
 
                     StdDraw.clear(Color.black);
                     StdDraw.setPenColor(Color.white);
-                    StdDraw.setFont(new Font("Arial", Font.BOLD, 64));
+                    StdDraw.setFont(new Font("Monaco", Font.BOLD, 64));
                     StdDraw.text(midWidth, HEIGHT - 10, "NEW GAME");
-                    StdDraw.setFont(new Font("Arial", Font.BOLD, 24));
+                    StdDraw.setFont(new Font("Monaco", Font.BOLD, 24));
                     StdDraw.text(midWidth, midHeight, "Enter any number, then press \"S\".");
                     StdDraw.setPenColor(Color.yellow);
                     StdDraw.text(midWidth, midHeight - 2, input);
@@ -71,9 +81,9 @@ public class Engine {
 
                     StdDraw.clear(Color.black);
                     StdDraw.setPenColor(Color.white);
-                    StdDraw.setFont(new Font("Arial", Font.BOLD, 64));
+                    StdDraw.setFont(new Font("Monaco", Font.BOLD, 64));
                     StdDraw.text(midWidth, HEIGHT - 10, "NEW GAME");
-                    StdDraw.setFont(new Font("Arial", Font.BOLD, 24));
+                    StdDraw.setFont(new Font("Monaco", Font.BOLD, 24));
                     StdDraw.text(midWidth, midHeight, "Enter any number, then press \"S\".");
                     StdDraw.setPenColor(Color.yellow);
                     StdDraw.text(midWidth, midHeight - 2, input);
@@ -87,6 +97,7 @@ public class Engine {
                     }
                     play = true;
                     seedScreen = false;
+                    StdDraw.setFont(new Font("Monaco", Font.BOLD, 16));
                     world = new WorldGenerator(seed);
                 } else if (each == 'Q') {
                     System.exit(0);
@@ -94,9 +105,47 @@ public class Engine {
                     replay();
                 }
             }
-            render();
+            if (dark) {
+                darkRender();
+            } else {
+                render();
+            }
             if (play) {
-                moves(keyboard, false);
+                if (StdDraw.isMousePressed()) {
+                    Font font = new Font("Monaco", Font.BOLD, 200);
+                    StdDraw.setFont(font);
+                    StdDraw.setPenColor(Color.YELLOW);
+
+                    int x = (int) StdDraw.mouseX();
+                    int y = (int) StdDraw.mouseY();
+                    if (x >= 0 && x <= 99 && y >= 0 && y <= 60) {
+                        TETile mouseHover;
+                        if (!dark) {
+                            mouseHover = world.getWorld()[x][y];
+                        } else  {
+                            mouseHover = world.getDark()[x][y];
+                        }
+                        System.out.println(mouseHover);
+                        if (mouseHover == Tileset.WALL) {
+                            tip = "A stone brick wall.";
+                        } else if (mouseHover == Tileset.FLOOR) {
+                            tip = "A mossy stone floor. It's a little bit gross.";
+                        } else if (mouseHover == Tileset.NOTHING) {
+                            tip = "What's not real can't hurt you. Unless?";
+                        } else if (mouseHover == Tileset.AVATAR) {
+                            tip = "Hey! It's me!";
+                        }
+                    }
+                    font = new Font("Monaco", Font.BOLD, 16);
+                    StdDraw.setFont(font);
+                    StdDraw.setPenColor(Color.WHITE);
+                }
+                if (StdDraw.hasNextKeyTyped()) {
+                    moves(keyboard, false);
+                }
+            }
+            if (off) {
+                System.exit(0);
             }
         }
     }
@@ -104,6 +153,20 @@ public class Engine {
     public void render() {
         TETile[][] frame = world.getWorld();
         ter.renderFrame(frame);
+        StdDraw.setPenColor(Color.white);
+        String time = DateTimeFormatter.ofPattern("uuuu/MM/dd HH:mm:ss").format(LocalDateTime.now());
+        StdDraw.textLeft(90, 59, time);
+        StdDraw.textLeft(90, 58, tip);
+        StdDraw.show();
+    }
+
+    public void darkRender() {
+        TETile[][] frame = world.getDark();
+        ter.renderFrame(frame);
+        StdDraw.setPenColor(Color.white);
+        String time = DateTimeFormatter.ofPattern("uuuu/MM/dd HH:mm:ss").format(LocalDateTime.now());
+        StdDraw.textLeft(90, 59, time);
+        StdDraw.textLeft(90, 58, tip);
         StdDraw.show();
     }
 
@@ -113,22 +176,36 @@ public class Engine {
             case 'W' -> {
                 totalInputs.append('W');
                 world.move('W');
+                saved = false;
             }
             case 'A' -> {
                 totalInputs.append('A');
                 world.move('A');
+                saved = false;
             }
             case 'S' -> {
                 totalInputs.append('S');
                 world.move('S');
+                saved = false;
             }
             case 'D' -> {
                 totalInputs.append('D');
                 world.move('D');
+                saved = false;
+            }
+            case 'P' -> dark = !dark;
+            case 'O' -> {
+                play = false;
+                saved = false;
+                openScreen = true;
+                interactWithKeyboard();
             }
             case ':' -> save();
             case 'Q' -> {
-                return;
+                if (saved) {
+                    off = true;
+                    return;
+                }
             }
             default -> {
             }
@@ -144,13 +221,13 @@ public class Engine {
     }
 
     public void titleScreen() {
-        ter.initialize(WIDTH, HEIGHT);
+        ter.initialize(WIDTH + 10, HEIGHT);
         StdDraw.clear(Color.black);
         StdDraw.setPenColor(Color.white);
-        Font title = new Font("Arial", Font.BOLD, 64);
+        Font title = new Font("Monaco", Font.BOLD, 64);
         StdDraw.setFont(title);
         StdDraw.text(50, 45, "CS61B: The Game");
-        Font context = new Font("Arial", Font.BOLD, 24);
+        Font context = new Font("Monaco", Font.BOLD, 24);
         StdDraw.setFont(context);
         StdDraw.text(50, 40, "New Game (N)");
         StdDraw.text(50, 38, "Load Game (L)");
@@ -213,6 +290,8 @@ public class Engine {
                 }
                 play = true;
                 seedScreen = false;
+                Font font = new Font("Monaco", Font.BOLD, 16);
+                StdDraw.setFont(font);
                 world = new WorldGenerator(seed);
             } else if (each == 'Q') {
                 return world.getWorld();
@@ -229,6 +308,7 @@ public class Engine {
     }
 
     public void save() {
+        saved = true;
         File save = new File("./save.txt");
         try {
             if (!save.exists()) {
@@ -324,6 +404,7 @@ public class Engine {
             }
         }
         while (play && keyboard.possibleNextInput()) {
+            StdDraw.setFont(new Font("Monaco", Font.BOLD, 16));
             moves(keyboard, true);
         }
         if (world != null) {
@@ -331,5 +412,8 @@ public class Engine {
         } else {
             return null;
         }
+    }
+    public boolean isOpenScreen() {
+        return off;
     }
 }
